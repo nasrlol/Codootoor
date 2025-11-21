@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "SqmEmRXxsAk=",
+  "success": true,
+  "projectFilePath": "C:\\users\\brent\\desktop\\StickmanIDE\\StickmanIDE.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\brent\\.nuget\\packages\\raylib-cs\\7.0.2\\raylib-cs.7.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
