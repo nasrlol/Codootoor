@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "zNFczwlPPI0=",
+  "dgSpecHash": "Q54F4UbH4AI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\CodeZ\\OneDrive\\Documenten\\Work\\odootoor\\StickmanIDE.csproj",
+  "projectFilePath": "/home/void/proj/odootoor/StickmanIDE.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\CodeZ\\.nuget\\packages\\raylib-cs\\7.0.2\\raylib-cs.7.0.2.nupkg.sha512"
+    "/home/void/.cache/NuGetPackages/raylib-cs/7.0.2/raylib-cs.7.0.2.nupkg.sha512"
   ],
   "logs": []
 }

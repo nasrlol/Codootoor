@@ -1,0 +1,184 @@
+namespace Odootoor;
+
+using Raylib_cs;
+using static Raylib_cs.Raylib;
+
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Linq;
+using System.IO;
+
+public partial class Program
+{
+    public struct Editor
+    {
+        public Rectangle Bounds;
+        public List<string> Lines = new List<string>();
+        public string CurrentInput = "";
+        public float ScrollOffset;
+        public int CurrentLine;
+        public Vector2 Position;
+
+        public Editor(Rectangle bounds, Vector2 position)
+        {
+            Bounds = bounds;
+            Position = position;
+        }
+    }
+    public static Editor editor;
+
+    public const int LINE_HEIGHT = 25;
+
+    public static void HandleInput()
+    {
+        // Handle backspace
+        if (IsKeyPressed(KeyboardKey.Backspace) && editor.CurrentInput.Length > 0)
+        {
+            editor.CurrentInput = editor.CurrentInput.Substring(0, editor.CurrentInput.Length - 1);
+        }
+
+        // Handle enter (both regular and keypad enter)
+        if (IsKeyPressed(KeyboardKey.Enter))
+        {
+            if (!string.IsNullOrEmpty(editor.CurrentInput))
+            {
+                editor.Lines.Add(editor.CurrentInput);
+                editor.CurrentInput = "";
+                editor.CurrentLine = editor.Lines.Count - 1;
+                editor.ScrollOffset = Math.Max(0, (editor.Lines.Count - 1) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);
+            }
+        }
+
+        // Handle character input
+        int key = GetCharPressed();
+        if (key > 0)
+        {
+            char c = (char)key;
+            if (char.IsLetterOrDigit(c) || c == ' ' || c == '.' || c == ',' || c == ';' ||
+                c == '(' || c == ')' || c == '{' || c == '}' || c == '=' ||
+                c == '+' || c == '-' || c == '*' || c == '/')
+            {
+                editor.CurrentInput += c;
+            }
+        }
+    }
+
+    public static void HandleScroll(Vector2 mousePos)
+    {
+        if (CheckCollisionPointRec(mousePos, editor.Bounds))
+        {
+            float mouseWheel = GetMouseWheelMove();
+            editor.ScrollOffset -= mouseWheel * 20;
+            float maxScroll = Math.Max(0, editor.Lines.Count * LINE_HEIGHT - editor.Bounds.Height + 50);
+            editor.ScrollOffset = Math.Clamp(editor.ScrollOffset, 0, maxScroll);
+        }
+    }
+
+    public static void DrawEditor()
+    {
+        // Editor background with solid color
+        DrawRectangleRec(editor.Bounds, new Color(25, 25, 35, 255));
+
+        // Editor border
+        DrawRectangleLines((int)editor.Bounds.X, (int)editor.Bounds.Y, (int)editor.Bounds.Width, (int)editor.Bounds.Height, new Color(60, 60, 80, 255));
+        DrawRectangleLines((int)editor.Bounds.X - 1, (int)editor.Bounds.Y - 1, (int)editor.Bounds.Width + 2, (int)editor.Bounds.Height + 2, new Color(20, 20, 30, 255));
+
+        DrawLineNumbers();
+        DrawCodeLines();
+        DrawCurrentInput();
+        DrawScrollBar();
+    }
+
+    public static void DrawLineNumbers()
+    {
+        DrawRectangle((int)editor.Bounds.X, (int)editor.Bounds.Y, 40, (int)editor.Bounds.Height, new Color(35, 35, 45, 255));
+        DrawLine((int)editor.Bounds.X + 40, (int)editor.Bounds.Y, (int)editor.Bounds.X + 40, (int)editor.Bounds.Y + (int)editor.Bounds.Height, new Color(60, 60, 80, 255));
+    }
+
+    public static void DrawCodeLines()
+    {
+        int visibleLines = (int)(editor.Bounds.Height / LINE_HEIGHT);
+        int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
+        int endLine = Math.Min(startLine + visibleLines + 1, editor.Lines.Count);
+
+        for (int i = startLine; i < endLine; i++)
+        {
+            float yPos = editor.Bounds.Y + 20 + (i - startLine) * LINE_HEIGHT - (editor.ScrollOffset % LINE_HEIGHT);
+
+            if (yPos >= editor.Bounds.Y && yPos <= editor.Bounds.Y + editor.Bounds.Height - LINE_HEIGHT)
+            {
+                Color lineColor = new Color(220, 220, 220, 255);
+
+                DrawText($"{i + 1}", (int)editor.Bounds.X + 10, (int)yPos, 18, new Color(150, 150, 170, 255));
+                DrawText(editor.Lines[i], (int)editor.Bounds.X + 45, (int)yPos, 18, lineColor);
+            }
+        }
+    }
+
+    public static void DrawCurrentInput()
+    {
+        int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
+        float currentInputY = editor.Bounds.Y + 20 + (editor.Lines.Count - startLine) * LINE_HEIGHT - (editor.ScrollOffset % LINE_HEIGHT);
+
+        if (currentInputY >= editor.Bounds.Y && currentInputY <= editor.Bounds.Y + editor.Bounds.Height - LINE_HEIGHT)
+        {
+            DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
+
+            // Draw cursor with blinking effect
+            string displayText = editor.CurrentInput;
+            if ((int)(GetTime() * 2) % 2 == 0)
+            {
+                displayText += "_";
+            }
+
+            DrawText(displayText, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
+        }
+    }
+
+    public static void DrawScrollBar()
+    {
+        if (editor.Lines.Count * LINE_HEIGHT > editor.Bounds.Height)
+        {
+            float scrollbarHeight = editor.Bounds.Height * (editor.Bounds.Height / (editor.Lines.Count * LINE_HEIGHT));
+            float scrollbarY = editor.Bounds.Y + (editor.ScrollOffset / (editor.Lines.Count * LINE_HEIGHT)) * (editor.Bounds.Height - scrollbarHeight);
+
+            DrawRectangle((int)editor.Bounds.X + (int)editor.Bounds.Width - 12, (int)scrollbarY, 8, (int)scrollbarHeight, new Color(80, 80, 100, 255));
+            DrawRectangleLines((int)editor.Bounds.X + (int)editor.Bounds.Width - 12, (int)scrollbarY, 8, (int)scrollbarHeight, new Color(120, 120, 140, 255));
+        }
+    }
+
+    public static void ClearEditor()
+    {
+        editor.Lines.Clear();
+        editor.CurrentInput = "";
+        editor.ScrollOffset = 0;
+        editor.CurrentLine = 0;
+    }
+
+    public static void SaveCode()
+    {
+        if (!string.IsNullOrWhiteSpace(editor.CurrentInput))
+        {
+            editor.Lines.Add(editor.CurrentInput);
+            editor.CurrentInput = "";
+        }
+
+        if (editor.Lines.Count > 0)
+        {
+            bool success = FileManager.SaveCodeToFile(editor.Lines);
+            if (success)
+            {
+                statusMessage = "Code saved successfully to saves/code.txt!";
+            }
+            else
+            {
+                statusMessage = "Error saving code!";
+            }
+        }
+        else
+        {
+            statusMessage = "No code to save!";
+        }
+    }
+}
