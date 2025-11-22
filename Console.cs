@@ -1,71 +1,19 @@
 namespace Odootoor;
+using System.Diagnostics;
+using Raylib_cs;
 
 // Simple code interpreter
 public partial class Program
 {
-    public static string ExecuteCode(List<string> codeLines)
+    public static string ExecuteCode(List<string> lines)
     {
-        var output = new List<string>();
-        output.Add("=== Program Output ===");
-
-        foreach (var line in codeLines)
-        {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            string trimmedLine = line.Trim();
-
-            // Simple print statement
-            if (trimmedLine.StartsWith("print") || trimmedLine.StartsWith("echo"))
-            {
-                string content = trimmedLine.Substring(trimmedLine.IndexOf(' ') + 1).Trim();
-                if (content.StartsWith("\"") && content.EndsWith("\""))
-                {
-                    output.Add(content.Substring(1, content.Length - 2));
-                }
-                else
-                {
-                    output.Add($"[Printed: {content}]");
-                }
-            }
-            // Simple calculation
-            else if (trimmedLine.Contains("+") || trimmedLine.Contains("-") || trimmedLine.Contains("*") || trimmedLine.Contains("/"))
-            {
-                try
-                {
-                    // Very basic math evaluation
-                    var dataTable = new System.Data.DataTable();
-                    var result = dataTable.Compute(trimmedLine, "");
-                    output.Add($"{trimmedLine} = {result}");
-                }
-                catch
-                {
-                    output.Add($"[Calculation: {trimmedLine}]");
-                }
-            }
-            // Variable assignment
-            else if (trimmedLine.Contains("="))
-            {
-                output.Add($"[Variable set: {trimmedLine}]");
-            }
-            // Comment
-            else if (trimmedLine.StartsWith("//") || trimmedLine.StartsWith("#"))
-            {
-                output.Add($"[Comment: {trimmedLine}]");
-            }
-            else
-            {
-                output.Add($"[Executed: {trimmedLine}]");
-            }
-        }
-
-        output.Add("=== End of Output ===");
-        return string.Join("\n", output);
+        return "";
     }
 
     static void ExecuteCode()
     {
         string fullCode = string.Join("\n", editor.Lines) +
-                                 (string.IsNullOrEmpty(editor.CurrentInput) ? "" : "\n" + editor.CurrentInput);
+                          (string.IsNullOrEmpty(editor.CurrentInput) ? "" : "\n" + editor.CurrentInput);
 
         if (!string.IsNullOrWhiteSpace(editor.CurrentInput))
         {
@@ -86,6 +34,60 @@ public partial class Program
         else
         {
             statusMessage = "Write some code first!";
+        }
+    }
+    public class Output
+    {
+        public Process proc;
+        public List<string> buffer = new List<string>();
+        public const int MaxLines = 200;
+
+        public void Init()
+        {
+            proc = new Process();
+            proc.StartInfo.FileName = "/bin/bash";
+            proc.StartInfo.Arguments = "-c \"cat\"";
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.RedirectStandardInput = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+
+            proc.Start();
+
+            Task.Run(() =>
+            {
+                var streamWriter = proc.StandardInput;
+                streamWriter.WriteLine("1");
+                while (!proc.StandardOutput.EndOfStream)
+                {
+                    string line = proc.StandardOutput.ReadLine();
+                    lock (buffer)
+                    {
+                        buffer.Add(line);
+                        if (buffer.Count > MaxLines)
+                            buffer.RemoveAt(0);
+                    }
+                }
+            });
+        }
+
+        public void Draw(Rectangle bounds)
+        {
+            int y = (int)bounds.Y + 40;
+            lock (buffer)
+            {
+                foreach (var line in buffer)
+                {
+                    Raylib.DrawText(line, (int)bounds.X + 10, y, 14, Color.White);
+                    y += 20;
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            if (proc != null && !proc.HasExited)
+                proc.Kill();
         }
     }
 }
