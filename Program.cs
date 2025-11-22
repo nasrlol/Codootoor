@@ -146,7 +146,7 @@ public partial class Program
                     }
                     else if (StickmanOver(stickmanPos, saveButton.Bounds))
                     {
-                        SaveCode();
+                        //SaveCode();
                     }
                 }
 
@@ -248,14 +248,14 @@ public partial class Program
 
                 if (currentState == GameState.Editing)
                 {
-                    string previousInput = editor.CurrentInput;
+                    //string previousInput = editor.CurrentInput;
 
                     HandleArrowNavigation();
                     ProcessControlKeys();
                     ProcessCharacterInput();
                     UpdateKeyRepeatTiming();
 
-                    achievementManager.CheckAchievements(editor.CurrentInput, editor.Lines.Count);
+                    //achievementManager.CheckAchievements(editor.CurrentInput, editor.Lines.Count);
                 }
 
                 achievementManager.UpdateAchievementDisplays();
