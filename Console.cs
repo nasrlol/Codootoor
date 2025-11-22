@@ -49,10 +49,15 @@ public partial class Program
         {
             proc = new Process();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
                 proc.StartInfo.FileName = "/bin/bash";
+                proc.StartInfo.Arguments = "-c \"cat\"";
+            }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
                 proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.Arguments = "-c \"cat\"";
+                proc.StartInfo.Arguments = "/c \"echo hello\"";
+            }
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardInput = true;
             proc.StartInfo.UseShellExecute = false;
