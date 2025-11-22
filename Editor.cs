@@ -39,14 +39,6 @@ public partial class Program
     public static Editor editor = new Editor(new Rectangle(0, 0, 0, 0), Vector2.Zero);
     public const int LINE_HEIGHT = 25;
 
-    public static void HandleInput()
-    {
-        HandleArrowNavigation();
-        ProcessControlKeys();
-        ProcessCharacterInput();
-        UpdateKeyRepeatTiming();
-    }
-
     private static void ProcessControlKeys()
     {
         // Handle backspace
@@ -288,27 +280,25 @@ public partial class Program
             DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
 
             // Draw cursor with blinking effect
-												Console.WriteLine(cursorPosition);
-												Console.WriteLine(editor.CurrentInput.Length);
-												if(editor.CurrentInput.Length > 0)
-												{
-            string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
-            string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
-
-            // Draw text before cursor
-            DrawText(textBeforeCursor, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
-
-            // Draw cursor
-            if ((int)(GetTime() * 2) % 2 == 0)
+            if (editor.CurrentInput.Length > 0)
             {
-                Vector2 cursorPos = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
-                DrawRectangle((int)editor.Bounds.X + 45 + (int)cursorPos.X, (int)currentInputY, 2, 18, Color.White);
-            }
+                string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
+                string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
 
-            // Draw text after cursor
-            Vector2 beforeCursorSize = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
-            DrawText(textAfterCursor, (int)editor.Bounds.X + 45 + (int)beforeCursorSize.X, (int)currentInputY, 18, Color.White);
-												}
+                // Draw text before cursor
+                DrawText(textBeforeCursor, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
+
+                // Draw cursor
+                if ((int)(GetTime() * 2) % 2 == 0)
+                {
+                    Vector2 cursorPos = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
+                    DrawRectangle((int)editor.Bounds.X + 45 + (int)cursorPos.X, (int)currentInputY, 2, 18, Color.White);
+                }
+
+                // Draw text after cursor
+                Vector2 beforeCursorSize = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
+                DrawText(textAfterCursor, (int)editor.Bounds.X + 45 + (int)beforeCursorSize.X, (int)currentInputY, 18, Color.White);
+            }
         }
     }
 
