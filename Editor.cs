@@ -36,7 +36,7 @@ public partial class Program
         }
     }
 
-				static Editor editor;
+    static Editor editor;
 
     public const int LINE_HEIGHT = 25;
 
@@ -49,93 +49,93 @@ public partial class Program
     }
 
     private static void ProcessControlKeys()
-{
-    // Handle backspace
-    if (IsKeyPressed(KeyboardKey.Backspace))
     {
-        HandleBackspace();
-        lastHeldKey = KeyboardKey.Backspace;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
-
-    if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle backspace
+        if (IsKeyPressed(KeyboardKey.Backspace))
         {
             HandleBackspace();
+            lastHeldKey = KeyboardKey.Backspace;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
-    }
 
-    // Handle Delete key
-    if (IsKeyPressed(KeyboardKey.Delete))
-    {
-        HandleDelete();
-        lastHeldKey = KeyboardKey.Delete;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleBackspace();
+            }
+        }
 
-    if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle Delete key
+        if (IsKeyPressed(KeyboardKey.Delete))
         {
             HandleDelete();
+            lastHeldKey = KeyboardKey.Delete;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
-    }
 
-    // Handle enter
-    if (IsKeyPressed(KeyboardKey.Enter))
-    {
-        HandleEnter();
-        lastHeldKey = KeyboardKey.Enter;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleDelete();
+            }
+        }
 
-    // Handle space (with proper repeating)
-    if (IsKeyPressed(KeyboardKey.Space))
-    {
-        HandleSpace();
-        lastHeldKey = KeyboardKey.Space;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        // Handle enter
+        if (IsKeyPressed(KeyboardKey.Enter))
+        {
+            HandleEnter();
+            lastHeldKey = KeyboardKey.Enter;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
 
-    if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle space (with proper repeating)
+        if (IsKeyPressed(KeyboardKey.Space))
         {
             HandleSpace();
+            lastHeldKey = KeyboardKey.Space;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
+
+        if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleSpace();
+            }
+        }
+
+        // Handle Tab key for indentation
+        if (IsKeyPressed(KeyboardKey.Tab))
+        {
+            editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, "    ");
+            cursorPosition += 4;
         }
     }
 
-    // Handle Tab key for indentation
-    if (IsKeyPressed(KeyboardKey.Tab))
+    private static void HandleDelete()
     {
-        editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, "    ");
-        cursorPosition += 4;
+        if (cursorPosition < editor.CurrentInput.Length)
+        {
+            // Verwijder character na cursor
+            editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
+        }
+        else if (editor.CurrentLine < editor.Lines.Count - 1)
+        {
+            // Delete aan einde van regel - voeg volgende regel samen met huidige
+            string nextLine = editor.Lines[editor.CurrentLine + 1];
+            editor.CurrentInput += nextLine;
+            editor.Lines.RemoveAt(editor.CurrentLine + 1);
+        }
     }
-}
-
-private static void HandleDelete()
-{
-    if (cursorPosition < editor.CurrentInput.Length)
-    {
-        // Verwijder character na cursor
-        editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
-    }
-    else if (editor.CurrentLine < editor.Lines.Count - 1)
-    {
-        // Delete aan einde van regel - voeg volgende regel samen met huidige
-        string nextLine = editor.Lines[editor.CurrentLine + 1];
-        editor.CurrentInput += nextLine;
-        editor.Lines.RemoveAt(editor.CurrentLine + 1);
-    }
-}
 
     private static void ProcessCharacterInput()
     {
@@ -183,30 +183,30 @@ private static void HandleDelete()
     }
 
     private static void HandleBackspace()
-{
-    if (cursorPosition > 0)
     {
-        // Normale backspace - verwijder character voor cursor
-        editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition - 1, 1);
-        cursorPosition--;
-    }
-    else if (editor.CurrentLine > 0 && string.IsNullOrEmpty(editor.CurrentInput))
-    {
-        // Backspace op lege regel - ga naar vorige regel
-        editor.CurrentLine--;
-        editor.CurrentInput = editor.Lines[editor.CurrentLine];
-        cursorPosition = editor.CurrentInput.Length;
-        
-        // Verwijder de lege regel uit de lijst
-        editor.Lines.RemoveAt(editor.CurrentLine);
-        
-        // Pas scroll aan
-        if (editor.CurrentLine * LINE_HEIGHT < editor.ScrollOffset)
+        if (cursorPosition > 0)
         {
-            editor.ScrollOffset = Math.Max(0, editor.CurrentLine * LINE_HEIGHT);
+            // Normale backspace - verwijder character voor cursor
+            editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition - 1, 1);
+            cursorPosition--;
+        }
+        else if (editor.CurrentLine > 0 && string.IsNullOrEmpty(editor.CurrentInput))
+        {
+            // Backspace op lege regel - ga naar vorige regel
+            editor.CurrentLine--;
+            editor.CurrentInput = editor.Lines[editor.CurrentLine];
+            cursorPosition = editor.CurrentInput.Length;
+
+            // Verwijder de lege regel uit de lijst
+            editor.Lines.RemoveAt(editor.CurrentLine);
+
+            // Pas scroll aan
+            if (editor.CurrentLine * LINE_HEIGHT < editor.ScrollOffset)
+            {
+                editor.ScrollOffset = Math.Max(0, editor.CurrentLine * LINE_HEIGHT);
+            }
         }
     }
-}
 
     private static void HandleSpace()
     {
@@ -237,11 +237,11 @@ private static void HandleDelete()
                 {
                     editor.Lines[editor.CurrentLine] = editor.CurrentInput;
                 }
-                
+
                 editor.CurrentLine--;
                 editor.CurrentInput = editor.Lines[editor.CurrentLine];
                 cursorPosition = Math.Min(cursorPosition, editor.CurrentInput.Length);
-                
+
                 // Adjust scroll if needed
                 if (editor.CurrentLine * LINE_HEIGHT < editor.ScrollOffset)
                 {
@@ -271,7 +271,7 @@ private static void HandleDelete()
                     editor.CurrentInput = "";  // New line at the end
                 }
                 cursorPosition = Math.Min(cursorPosition, editor.CurrentInput.Length);
-                
+
                 // Adjust scroll if needed
                 float bottomScroll = editor.ScrollOffset + editor.Bounds.Height - LINE_HEIGHT;
                 if (editor.CurrentLine * LINE_HEIGHT > bottomScroll)
@@ -346,36 +346,36 @@ private static void HandleDelete()
         }
     }
 
-private static void DrawCurrentInput()
-{
-    int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
-    float currentInputY = editor.Bounds.Y + 20 + (editor.Lines.Count - startLine) * LINE_HEIGHT - (editor.ScrollOffset % LINE_HEIGHT);
-
-    if (currentInputY >= editor.Bounds.Y && currentInputY <= editor.Bounds.Y + editor.Bounds.Height - LINE_HEIGHT)
+    private static void DrawCurrentInput()
     {
-        // Show the correct line number for the current input
-        DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
+        int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
+        float currentInputY = editor.Bounds.Y + 20 + (editor.Lines.Count - startLine) * LINE_HEIGHT - (editor.ScrollOffset % LINE_HEIGHT);
 
-        // SIMPELE CURSOR: gewoon de hele tekst tekenen en cursor apart
-        string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
-        string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
-
-        // Teken tekst voor cursor
-        DrawText(textBeforeCursor, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
-        
-        // Bereken cursor positie
-        int cursorX = (int)editor.Bounds.X + 45 + MeasureText(textBeforeCursor, 18);
-        
-        // Teken cursor
-        if ((int)(GetTime() * 2) % 2 == 0)
+        if (currentInputY >= editor.Bounds.Y && currentInputY <= editor.Bounds.Y + editor.Bounds.Height - LINE_HEIGHT)
         {
-            DrawRectangle(cursorX, (int)currentInputY, 2, 18, Color.Yellow);
+            // Show the correct line number for the current input
+            DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
+
+            // SIMPELE CURSOR: gewoon de hele tekst tekenen en cursor apart
+            string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
+            string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
+
+            // Teken tekst voor cursor
+            DrawText(textBeforeCursor, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
+
+            // Bereken cursor positie
+            int cursorX = (int)editor.Bounds.X + 45 + MeasureText(textBeforeCursor, 18);
+
+            // Teken cursor
+            if ((int)(GetTime() * 2) % 2 == 0)
+            {
+                DrawRectangle(cursorX, (int)currentInputY, 2, 18, Color.Yellow);
+            }
+
+            // Teken tekst na cursor
+            DrawText(textAfterCursor, cursorX, (int)currentInputY, 18, Color.White);
         }
-        
-        // Teken tekst na cursor
-        DrawText(textAfterCursor, cursorX, (int)currentInputY, 18, Color.White);
     }
-}
 
     private static void DrawScrollBar()
     {
@@ -398,30 +398,30 @@ private static void DrawCurrentInput()
         cursorPosition = 0;
     }
 
-private static void HandleEnter()
-{
-    if (cursorPosition == editor.CurrentInput.Length)
+    private static void HandleEnter()
     {
-        // Cursor staat aan het einde - voeg gewoon nieuwe regel toe
-        editor.Lines.Add(editor.CurrentInput);
-        editor.CurrentInput = "";
+        if (cursorPosition == editor.CurrentInput.Length)
+        {
+            // Cursor staat aan het einde - voeg gewoon nieuwe regel toe
+            editor.Lines.Add(editor.CurrentInput);
+            editor.CurrentInput = "";
+        }
+        else
+        {
+            // Cursor staat ergens in het midden - splits de tekst
+            string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
+            string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
+
+            // Huidige regel wordt tekst voor cursor
+            editor.Lines.Add(textBeforeCursor);
+            // Nieuwe regel wordt tekst na cursor
+            editor.CurrentInput = textAfterCursor;
+        }
+
+        cursorPosition = 0;
+        editor.CurrentLine = editor.Lines.Count;
+        editor.ScrollOffset = Math.Max(0, (editor.Lines.Count) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);
     }
-    else
-    {
-        // Cursor staat ergens in het midden - splits de tekst
-        string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
-        string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
-        
-        // Huidige regel wordt tekst voor cursor
-        editor.Lines.Add(textBeforeCursor);
-        // Nieuwe regel wordt tekst na cursor
-        editor.CurrentInput = textAfterCursor;
-    }
-    
-    cursorPosition = 0;
-    editor.CurrentLine = editor.Lines.Count;
-    editor.ScrollOffset = Math.Max(0, (editor.Lines.Count) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);
-}
 
     public static void SaveCode()
     {
@@ -448,4 +448,11 @@ private static void HandleEnter()
             statusMessage = "No code to save!";
         }
     }
+
+    public static string ToBuffer(List<String> lines)
+    {
+        if (lines == null) return string.Empty;
+        return string.Join(Environment.NewLine, lines);
+    }
+
 }
