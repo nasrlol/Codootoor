@@ -69,24 +69,25 @@
     ]
   },
   "packageFolders": {
-    "/home/void/.cache/NuGetPackages": {}
+    "/Users/nasr/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/void/proj/odootoor/StickmanIDE.csproj",
+      "projectUniqueName": "/Users/nasr/odootoor/StickmanIDE.csproj",
       "projectName": "StickmanIDE",
-      "projectPath": "/home/void/proj/odootoor/StickmanIDE.csproj",
-      "packagesPath": "/home/void/.cache/NuGetPackages",
-      "outputPath": "/home/void/proj/odootoor/obj/",
+      "projectPath": "/Users/nasr/odootoor/StickmanIDE.csproj",
+      "packagesPath": "/Users/nasr/.nuget/packages/",
+      "outputPath": "/Users/nasr/odootoor/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/void/.local/share/dotnet/.nuget/NuGet/NuGet.Config"
+        "/Users/nasr/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "/Users/nasr/.dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -127,12 +128,26 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.22, 8.0.22]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[8.0.22, 8.0.22]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.22, 8.0.22]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/home/void/.dotnet/sdk/10.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/nasr/.dotnet/sdk/10.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

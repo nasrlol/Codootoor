@@ -247,9 +247,13 @@ class OutputWindow
     public string OutputText = "";
     public Rectangle Bounds;
     public float ScrollOffset;
+    public Program.Output output;
 
     public OutputWindow()
     {
+        output = new Program.Output();
+        output.Init();
+        
         IsVisible = false;
         Bounds = new Rectangle(200, 100, 800, 500);
     }
@@ -271,6 +275,8 @@ class OutputWindow
 
     public void Draw()
     {
+        output.Draw(Bounds);
+        
         if (!IsVisible) return;
 
         // Window background with border
@@ -307,10 +313,12 @@ class OutputWindow
 
             DrawRectangle((int)Bounds.X + (int)Bounds.Width - 12, (int)scrollbarY, 8, (int)scrollbarHeight, new Color(80, 80, 100, 255));
         }
+        output.Draw(Bounds); 
     }
 
     public bool CloseButtonClicked()
     {
+        output.Stop();
         if (!IsVisible) return false;
 
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
