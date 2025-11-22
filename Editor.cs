@@ -47,59 +47,93 @@ public partial class Program
     }
 
     private static void ProcessControlKeys()
+{
+    // Handle backspace
+    if (IsKeyPressed(KeyboardKey.Backspace))
     {
-        // Handle backspace
-        if (IsKeyPressed(KeyboardKey.Backspace))
+        HandleBackspace();
+        lastHeldKey = KeyboardKey.Backspace;
+        keyHoldTimer = 0f;
+        isRepeating = false;
+    }
+
+    if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
+    {
+        keyHoldTimer += GetFrameTime();
+        if (ShouldRepeatKey())
         {
             HandleBackspace();
-            lastHeldKey = KeyboardKey.Backspace;
-            keyHoldTimer = 0f;
-            isRepeating = false;
-        }
-
-        if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
-        {
-            keyHoldTimer += GetFrameTime();
-            if (ShouldRepeatKey())
-            {
-                HandleBackspace();
-            }
-        }
-
-        // Handle enter
-        if (IsKeyPressed(KeyboardKey.Enter))
-        {
-            HandleEnter();
-            lastHeldKey = KeyboardKey.Enter;
-            keyHoldTimer = 0f;
-            isRepeating = false;
-        }
-
-        // Handle space (with proper repeating)
-        if (IsKeyPressed(KeyboardKey.Space))
-        {
-            HandleSpace();
-            lastHeldKey = KeyboardKey.Space;
-            keyHoldTimer = 0f;
-            isRepeating = false;
-        }
-
-        if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
-        {
-            keyHoldTimer += GetFrameTime();
-            if (ShouldRepeatKey())
-            {
-                HandleSpace();
-            }
-        }
-
-        // Handle Tab key for indentation
-        if (IsKeyPressed(KeyboardKey.Tab))
-        {
-            editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, "    ");
-            cursorPosition += 4;
         }
     }
+
+    // Handle Delete key
+    if (IsKeyPressed(KeyboardKey.Delete))
+    {
+        HandleDelete();
+        lastHeldKey = KeyboardKey.Delete;
+        keyHoldTimer = 0f;
+        isRepeating = false;
+    }
+
+    if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
+    {
+        keyHoldTimer += GetFrameTime();
+        if (ShouldRepeatKey())
+        {
+            HandleDelete();
+        }
+    }
+
+    // Handle enter
+    if (IsKeyPressed(KeyboardKey.Enter))
+    {
+        HandleEnter();
+        lastHeldKey = KeyboardKey.Enter;
+        keyHoldTimer = 0f;
+        isRepeating = false;
+    }
+
+    // Handle space (with proper repeating)
+    if (IsKeyPressed(KeyboardKey.Space))
+    {
+        HandleSpace();
+        lastHeldKey = KeyboardKey.Space;
+        keyHoldTimer = 0f;
+        isRepeating = false;
+    }
+
+    if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
+    {
+        keyHoldTimer += GetFrameTime();
+        if (ShouldRepeatKey())
+        {
+            HandleSpace();
+        }
+    }
+
+    // Handle Tab key for indentation
+    if (IsKeyPressed(KeyboardKey.Tab))
+    {
+        editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, "    ");
+        cursorPosition += 4;
+    }
+}
+
+private static void HandleDelete()
+{
+    if (cursorPosition < editor.CurrentInput.Length)
+    {
+        // Verwijder character na cursor
+        editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
+    }
+    else if (editor.CurrentLine < editor.Lines.Count - 1)
+    {
+        // Delete aan einde van regel - voeg volgende regel samen met huidige
+        string nextLine = editor.Lines[editor.CurrentLine + 1];
+        editor.CurrentInput += nextLine;
+        editor.Lines.RemoveAt(editor.CurrentLine + 1);
+    }
+}
 
     private static void ProcessCharacterInput()
     {
@@ -147,13 +181,30 @@ public partial class Program
     }
 
     private static void HandleBackspace()
+{
+    if (cursorPosition > 0)
     {
-        if (cursorPosition > 0)
+        // Normale backspace - verwijder character voor cursor
+        editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition - 1, 1);
+        cursorPosition--;
+    }
+    else if (editor.CurrentLine > 0 && string.IsNullOrEmpty(editor.CurrentInput))
+    {
+        // Backspace op lege regel - ga naar vorige regel
+        editor.CurrentLine--;
+        editor.CurrentInput = editor.Lines[editor.CurrentLine];
+        cursorPosition = editor.CurrentInput.Length;
+        
+        // Verwijder de lege regel uit de lijst
+        editor.Lines.RemoveAt(editor.CurrentLine);
+        
+        // Pas scroll aan
+        if (editor.CurrentLine * LINE_HEIGHT < editor.ScrollOffset)
         {
-            editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition - 1, 1);
-            cursorPosition--;
+            editor.ScrollOffset = Math.Max(0, editor.CurrentLine * LINE_HEIGHT);
         }
     }
+}
 
     private static void HandleSpace()
     {
