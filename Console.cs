@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace Odootoor;
 using System.Diagnostics;
 using Raylib_cs;
@@ -45,7 +47,10 @@ public partial class Program
         public void Init()
         {
             proc = new Process();
-            proc.StartInfo.FileName = "/bin/bash";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                proc.StartInfo.FileName = "/bin/bash";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                proc.StartInfo.FileName = "cmd.exe";
             proc.StartInfo.Arguments = "-c \"cat\"";
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.RedirectStandardInput = true;
