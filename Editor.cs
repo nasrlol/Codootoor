@@ -36,7 +36,6 @@ public partial class Program
         }
     }
 
-    public static Editor editor = new Editor(new Rectangle(0, 0, 0, 0), Vector2.Zero);
     public const int LINE_HEIGHT = 25;
 
     public static void HandleInput()
