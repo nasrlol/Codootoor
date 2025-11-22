@@ -4,6 +4,7 @@ using Raylib_cs;
 using static Raylib_cs.Raylib;
 
 using System;
+using static System.Console;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
@@ -287,6 +288,10 @@ public partial class Program
             DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
 
             // Draw cursor with blinking effect
+												Console.WriteLine(cursorPosition);
+												Console.WriteLine(editor.CurrentInput.Length);
+												if(editor.CurrentInput.Length > 0)
+												{
             string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
             string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
 
@@ -303,6 +308,7 @@ public partial class Program
             // Draw text after cursor
             Vector2 beforeCursorSize = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
             DrawText(textAfterCursor, (int)editor.Bounds.X + 45 + (int)beforeCursorSize.X, (int)currentInputY, 18, Color.White);
+												}
         }
     }
 
