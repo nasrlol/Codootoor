@@ -346,7 +346,7 @@ public partial class Program
                                      source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
                                                                             0, Color.Blue);
 
-                DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
+                // DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
 
 
                 EndDrawing();
