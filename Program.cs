@@ -16,6 +16,7 @@ enum GameState { Editing, Delivering, Returning, Success, QuickDelivery, Falling
 
 public partial class Program
 {
+    const bool DEBUGDisableDeliveries = true;
 
     static int screenWidth = 1400;
     static int screenHeight = 900;
@@ -81,20 +82,6 @@ public partial class Program
 
     static void UpdateEditingState(Vector2 mousePos)
     {
-        string previousInput = editor.CurrentInput;
-
-        HandleInput();
-        achievementManager.CheckAchievements(editor.CurrentInput, editor.Lines.Count);
-
-        if (editor.CurrentInput.Length > previousInput.Length &&
-            char.IsLetter(editor.CurrentInput[^1]) &&
-            !quickDeliveryActive &&
-            currentState == GameState.Editing)
-        {
-            //StartQuickDeliveryForLetters();
-        }
-
-        //StartQuickDeliveryForLetters();
     }
 
     // function to write code
@@ -272,7 +259,25 @@ public partial class Program
 
                 if (currentState == GameState.Editing)
                 {
-                    UpdateEditingState(mousePos);
+                    string previousInput = editor.CurrentInput;
+
+                    HandleArrowNavigation();
+                    ProcessControlKeys();
+                    ProcessCharacterInput();
+                    UpdateKeyRepeatTiming();
+
+                    achievementManager.CheckAchievements(editor.CurrentInput, editor.Lines.Count);
+
+                    if (editor.CurrentInput.Length > previousInput.Length &&
+                                    char.IsLetter(editor.CurrentInput[^1]) &&
+                                    !quickDeliveryActive &&
+                                    currentState == GameState.Editing)
+                    {
+                        if (!DEBUGDisableDeliveries)
+                        {
+                            StartQuickDeliveryForLetters();
+                        }
+                    }
                 }
 
                 UpdateStickman();
