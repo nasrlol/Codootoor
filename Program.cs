@@ -3,30 +3,111 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
+// GameState enum moet buiten alle klassen staan
+enum GameState { Editing, Delivering, Returning, Success }
+
+class Stickman
+{
+    public Vector2 Position { get; set; }
+    public Vector2 OriginalPosition { get; set; }
+    public string CurrentWord { get; set; }
+    public float Speed { get; set; } = 3.0f;
+    
+    public Stickman(Vector2 startPosition)
+    {
+        Position = startPosition;
+        OriginalPosition = startPosition;
+        CurrentWord = "";
+    }
+    
+    public void Update(GameState state, Vector2 targetPosition)
+    {
+        if (state == GameState.Delivering)
+        {
+            if (Position.X > targetPosition.X)
+            {
+                Position = new Vector2(Position.X - Speed, Position.Y);
+            }
+        }
+        else if (state == GameState.Returning)
+        {
+            if (Position.X < OriginalPosition.X)
+            {
+                Position = new Vector2(Position.X + Speed, Position.Y);
+            }
+        }
+        else if (state == GameState.Editing || state == GameState.Success)
+        {
+            Position = OriginalPosition;
+        }
+    }
+    
+    public void Draw()
+    {
+        int x = (int)Position.X;
+        int y = (int)Position.Y;
+        
+        // Hoofd
+        Raylib.DrawCircle(x, y - 20, 10, new Color(255, 218, 185, 255));
+        
+        // Lichaam
+        Raylib.DrawLine(x, y - 10, x, y + 20, Color.Blue);
+        
+        // Armen in dragende positie
+        Raylib.DrawLine(x, y, x - 15, y - 5, Color.Blue);
+        Raylib.DrawLine(x, y, x + 15, y - 5, Color.Blue);
+        
+        // Benen met loop animatie
+        float walkOffset = (float)Math.Sin(Raylib.GetTime() * 8) * 5;
+        Raylib.DrawLine(x, y + 20, x - 15, y + 40 + (int)walkOffset, Color.DarkBlue);
+        Raylib.DrawLine(x, y + 20, x + 15, y + 40 - (int)walkOffset, Color.DarkBlue);
+        
+        // Woord bubble als stickman iets draagt
+        if (!string.IsNullOrEmpty(CurrentWord))
+        {
+            Raylib.DrawRectangle(x - 40, y - 60, 80, 25, Color.White);
+            Raylib.DrawRectangleLines(x - 40, y - 60, 80, 25, Color.Black);
+            Raylib.DrawText(CurrentWord, x - 35, y - 55, 12, Color.Black);
+        }
+    }
+    
+    public void Reset()
+    {
+        Position = OriginalPosition;
+        CurrentWord = "";
+    }
+}
+
 class Program
 {
-    enum GameState { Editing, Delivering, Returning, Success }
+    static int screenWidth = 1200;
+    static int screenHeight = 800;
+    const int CODE_EDITOR_WIDTH_PERCENT = 58;
+    const int CODE_EDITOR_HEIGHT_PERCENT = 75;
+    const int LINE_HEIGHT = 25;
     
     static void Main()
     {
-        Raylib.InitWindow(1200, 800, "Stickman IDE");
+        Raylib.InitWindow(screenWidth, screenHeight, "Stickman IDE");
+        Raylib.SetWindowState(ConfigFlags.ResizableWindow);
         Raylib.SetTargetFPS(60);
 
-        Vector2 stickmanPos = new Vector2(950, 550);
-        Vector2 housePos = new Vector2(900, 500);
-        Vector2 codeEditorPos = new Vector2(100, 150);
-        Vector2 originalPos = stickmanPos;
-        string currentWord = "";
+        // Stickman instantie
+        Stickman stickman = new Stickman(CalculateStickmanStartPosition());
+        
+        // Dynamic layout variabelen
+        Rectangle codeEditor = CalculateCodeEditor();
+        Rectangle executeButton = CalculateExecuteButton();
+        Rectangle volumeSliderVisual = CalculateVolumeSlider();
+        Rectangle volumeSliderActual = CalculateVolumeSliderActual();
+        Vector2 housePos = CalculateHousePosition();
+        Vector2 codeEditorPos = CalculateCodeEditorPosition();
+        
         List<string> currentLineWords = new List<string>();
         int currentWordIndex = 0;
 
         string inputText = "";
         string statusMessage = "Type code in the editor...";
-        Rectangle codeEditor = new Rectangle(50, 100, 700, 600);
-        Rectangle executeButton = new Rectangle(1000, 30, 120, 40);
-        
-        Rectangle volumeSliderVisual = new Rectangle(1000, 100, 150, 20);
-        Rectangle volumeSliderActual = new Rectangle(1000, 95, 150, 30);
         
         Color executeButtonColor = Color.LightGray;
         
@@ -39,6 +120,26 @@ class Program
 
         while (!Raylib.WindowShouldClose())
         {
+            if (Raylib.IsWindowResized())
+            {
+                screenWidth = Raylib.GetScreenWidth();
+                screenHeight = Raylib.GetScreenHeight();
+                
+                codeEditor = CalculateCodeEditor();
+                executeButton = CalculateExecuteButton();
+                volumeSliderVisual = CalculateVolumeSlider();
+                volumeSliderActual = CalculateVolumeSliderActual();
+                housePos = CalculateHousePosition();
+                codeEditorPos = CalculateCodeEditorPosition();
+                
+                // Update stickman position
+                stickman.OriginalPosition = CalculateStickmanStartPosition();
+                if (currentState == GameState.Editing || currentState == GameState.Success)
+                {
+                    stickman.Reset();
+                }
+            }
+
             Vector2 mousePos = Raylib.GetMousePosition();
             bool mouseOverButton = Raylib.CheckCollisionPointRec(mousePos, executeButton);
             bool mouseOverVolume = Raylib.CheckCollisionPointRec(mousePos, volumeSliderActual);
@@ -56,7 +157,7 @@ class Program
             if (Raylib.CheckCollisionPointRec(mousePos, codeEditor))
             {
                 scrollOffset -= mouseWheel * 20;
-                float maxScroll = Math.Max(0, codeLines.Count * 25 - codeEditor.Height + 50);
+                float maxScroll = Math.Max(0, codeLines.Count * LINE_HEIGHT - codeEditor.Height + 50);
                 scrollOffset = Math.Clamp(scrollOffset, 0, maxScroll);
             }
 
@@ -66,7 +167,9 @@ class Program
                 while (key > 0)
                 {
                     char c = (char)key;
-                    if (char.IsLetterOrDigit(c) || c == ' ' || c == '.' || c == ',' || c == ';' || c == '(' || c == ')' || c == '{' || c == '}' || c == '=' || c == '+' || c == '-' || c == '*' || c == '/')
+                    if (char.IsLetterOrDigit(c) || c == ' ' || c == '.' || c == ',' || c == ';' || 
+                        c == '(' || c == ')' || c == '{' || c == '}' || c == '=' || 
+                        c == '+' || c == '-' || c == '*' || c == '/')
                     {
                         inputText += c;
                     }
@@ -99,7 +202,7 @@ class Program
                         currentLine = 0;
                         currentWordIndex = 0;
                         currentLineWords = new List<string>(codeLines[0].Split(' '));
-                        currentWord = currentLineWords[0];
+                        stickman.CurrentWord = currentLineWords[0];
                     }
                     else
                     {
@@ -108,22 +211,21 @@ class Program
                 }
             }
 
+            // Update stickman
+            stickman.Update(currentState, new Vector2(codeEditorPos.X + codeEditor.Width * 0.3f, stickman.Position.Y));
+
             switch (currentState)
             {
                 case GameState.Delivering:
-                    if (stickmanPos.X > codeEditorPos.X + 200)
-                    {
-                        stickmanPos.X -= 3;
-                    }
-                    else
+                    if (stickman.Position.X <= codeEditorPos.X + codeEditor.Width * 0.3f)
                     {
                         currentState = GameState.Returning;
-                        statusMessage = $"Delivered: {currentWord}";
+                        statusMessage = $"Delivered: {stickman.CurrentWord}";
                         
                         currentWordIndex++;
                         if (currentWordIndex < currentLineWords.Count)
                         {
-                            currentWord = currentLineWords[currentWordIndex];
+                            stickman.CurrentWord = currentLineWords[currentWordIndex];
                         }
                         else
                         {
@@ -132,7 +234,7 @@ class Program
                             {
                                 currentLineWords = new List<string>(codeLines[currentLine].Split(' '));
                                 currentWordIndex = 0;
-                                currentWord = currentLineWords[0];
+                                stickman.CurrentWord = currentLineWords[0];
                             }
                             else
                             {
@@ -144,16 +246,12 @@ class Program
                     break;
 
                 case GameState.Returning:
-                    if (stickmanPos.X < housePos.X)
-                    {
-                        stickmanPos.X += 3;
-                    }
-                    else
+                    if (stickman.Position.X >= stickman.OriginalPosition.X)
                     {
                         if (currentState != GameState.Success)
                         {
                             currentState = GameState.Delivering;
-                            statusMessage = $"Getting next word: {currentWord}";
+                            statusMessage = $"Getting next word: {stickman.CurrentWord}";
                         }
                     }
                     break;
@@ -162,11 +260,10 @@ class Program
                     if (Raylib.IsKeyPressed(KeyboardKey.Space))
                     {
                         currentState = GameState.Editing;
-                        stickmanPos = originalPos;
+                        stickman.Reset();
                         codeLines.Clear();
                         inputText = "";
                         statusMessage = "Type code in the editor...";
-                        currentWord = "";
                         scrollOffset = 0;
                     }
                     break;
@@ -175,7 +272,7 @@ class Program
             Raylib.BeginDrawing();
             Raylib.ClearBackground(new Color(30, 30, 40, 255));
 
-            Raylib.DrawRectangle(0, 0, 1200, 800, new Color(40, 44, 52, 255));
+            Raylib.DrawRectangle(0, 0, screenWidth, screenHeight, new Color(40, 44, 52, 255));
 
             Raylib.DrawRectangleRec(codeEditor, new Color(25, 25, 35, 255));
             Raylib.DrawRectangleLines((int)codeEditor.X, (int)codeEditor.Y, (int)codeEditor.Width, (int)codeEditor.Height, new Color(60, 60, 80, 255));
@@ -186,15 +283,15 @@ class Program
             
             Raylib.DrawRectangle((int)codeEditor.X, (int)codeEditor.Y, 40, (int)codeEditor.Height, new Color(35, 35, 45, 255));
             
-            int visibleLines = (int)(codeEditor.Height / 25);
-            int startLine = (int)(scrollOffset / 25);
+            int visibleLines = (int)(codeEditor.Height / LINE_HEIGHT);
+            int startLine = (int)(scrollOffset / LINE_HEIGHT);
             int endLine = Math.Min(startLine + visibleLines + 1, codeLines.Count);
             
             for (int i = startLine; i < endLine; i++)
             {
-                float yPos = codeEditor.Y + 20 + (i - startLine) * 25 - (scrollOffset % 25);
+                float yPos = codeEditor.Y + 20 + (i - startLine) * LINE_HEIGHT - (scrollOffset % LINE_HEIGHT);
                 
-                if (yPos >= codeEditor.Y && yPos <= codeEditor.Y + codeEditor.Height - 25)
+                if (yPos >= codeEditor.Y && yPos <= codeEditor.Y + codeEditor.Height - LINE_HEIGHT)
                 {
                     Color lineColor = i == currentLine && currentState == GameState.Delivering ? Color.Green : new Color(200, 200, 200, 255);
                     
@@ -203,21 +300,22 @@ class Program
                 }
             }
 
-            float currentInputY = codeEditor.Y + 20 + (codeLines.Count - startLine) * 25 - (scrollOffset % 25);
-            if (currentInputY >= codeEditor.Y && currentInputY <= codeEditor.Y + codeEditor.Height - 25)
+            float currentInputY = codeEditor.Y + 20 + (codeLines.Count - startLine) * LINE_HEIGHT - (scrollOffset % LINE_HEIGHT);
+            if (currentInputY >= codeEditor.Y && currentInputY <= codeEditor.Y + codeEditor.Height - LINE_HEIGHT)
             {
                 Raylib.DrawText($"{codeLines.Count + 1}:", (int)codeEditor.X + 10, (int)currentInputY, 18, new Color(100, 100, 120, 255));
                 Raylib.DrawText($"{inputText}_", (int)codeEditor.X + 45, (int)currentInputY, 18, Color.White);
             }
 
-            if (codeLines.Count * 25 > codeEditor.Height)
+            if (codeLines.Count * LINE_HEIGHT > codeEditor.Height)
             {
-                float scrollbarHeight = codeEditor.Height * (codeEditor.Height / (codeLines.Count * 25));
-                float scrollbarY = codeEditor.Y + (scrollOffset / (codeLines.Count * 25)) * (codeEditor.Height - scrollbarHeight);
+                float scrollbarHeight = codeEditor.Height * (codeEditor.Height / (codeLines.Count * LINE_HEIGHT));
+                float scrollbarY = codeEditor.Y + (scrollOffset / (codeLines.Count * LINE_HEIGHT)) * (codeEditor.Height - scrollbarHeight);
                 Raylib.DrawRectangle((int)codeEditor.X + (int)codeEditor.Width - 10, (int)scrollbarY, 8, (int)scrollbarHeight, new Color(100, 100, 120, 255));
             }
 
-            DrawStickman(stickmanPos, currentWord);
+            // Draw stickman
+            stickman.Draw();
 
             Raylib.DrawRectangleRec(executeButton, executeButtonColor);
             Raylib.DrawRectangleLines((int)executeButton.X, (int)executeButton.Y, (int)executeButton.Width, (int)executeButton.Height, Color.DarkGray);
@@ -244,14 +342,14 @@ class Program
             };
             Raylib.DrawText(statusMessage, 50, 30, 25, statusColor);
 
-            if (!string.IsNullOrEmpty(currentWord) && currentState != GameState.Editing && currentState != GameState.Success)
+            if (!string.IsNullOrEmpty(stickman.CurrentWord) && currentState != GameState.Editing && currentState != GameState.Success)
             {
-                Raylib.DrawText($"Carrying: {currentWord}", 850, 30, 20, Color.Yellow);
+                Raylib.DrawText($"Carrying: {stickman.CurrentWord}", (int)(screenWidth * 0.7f), 30, 20, Color.Yellow);
             }
             
             if (currentState == GameState.Success)
             {
-                Raylib.DrawText("Press SPACE to write new code", 500, 650, 22, Color.Green);
+                Raylib.DrawText("Press SPACE to write new code", screenWidth / 2 - 200, screenHeight - 100, 22, Color.Green);
             }
 
             Raylib.EndDrawing();
@@ -260,26 +358,59 @@ class Program
         Raylib.CloseWindow();
     }
 
-    static void DrawStickman(Vector2 position, string word)
+    static Rectangle CalculateCodeEditor()
     {
-        int x = (int)position.X;
-        int y = (int)position.Y;
-        
-        Raylib.DrawCircle(x, y - 20, 10, new Color(255, 218, 185, 255));
-        Raylib.DrawLine(x, y - 10, x, y + 20, Color.Blue);
-        Raylib.DrawLine(x, y, x - 15, y - 5, Color.Blue);
-        Raylib.DrawLine(x, y, x + 15, y - 5, Color.Blue);
-        
-        float walkOffset = (float)Math.Sin(Raylib.GetTime() * 8) * 5;
-        Raylib.DrawLine(x, y + 20, x - 15, y + 40 + (int)walkOffset, Color.DarkBlue);
-        Raylib.DrawLine(x, y + 20, x + 15, y + 40 - (int)walkOffset, Color.DarkBlue);
+        return new Rectangle(
+            screenWidth * 0.04f,
+            screenHeight * 0.125f,
+            screenWidth * (CODE_EDITOR_WIDTH_PERCENT / 100f),
+            screenHeight * (CODE_EDITOR_HEIGHT_PERCENT / 100f)
+        );
+    }
 
-        if (!string.IsNullOrEmpty(word))
-        {
-            Raylib.DrawRectangle(x - 40, y - 60, 80, 25, Color.White);
-            Raylib.DrawRectangleLines(x - 40, y - 60, 80, 25, Color.Black);
-            Raylib.DrawText(word, x - 35, y - 55, 12, Color.Black);
-        }
+    static Rectangle CalculateExecuteButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.83f,
+            screenHeight * 0.037f,
+            120,
+            40
+        );
+    }
+
+    static Rectangle CalculateVolumeSlider()
+    {
+        return new Rectangle(
+            screenWidth * 0.83f,
+            screenHeight * 0.125f,
+            150,
+            20
+        );
+    }
+
+    static Rectangle CalculateVolumeSliderActual()
+    {
+        return new Rectangle(
+            screenWidth * 0.83f,
+            screenHeight * 0.118f,
+            150,
+            30
+        );
+    }
+
+    static Vector2 CalculateHousePosition()
+    {
+        return new Vector2(screenWidth * 0.75f, screenHeight * 0.625f);
+    }
+
+    static Vector2 CalculateStickmanStartPosition()
+    {
+        return new Vector2(screenWidth * 0.79f, screenHeight * 0.687f);
+    }
+
+    static Vector2 CalculateCodeEditorPosition()
+    {
+        return new Vector2(screenWidth * 0.08f, screenHeight * 0.187f);
     }
 
     static void DrawHouse(Vector2 position)
@@ -312,20 +443,20 @@ class Program
         Raylib.DrawText("Stickman\n   Home", x - 40, y + 90, 14, Color.White);
     }
 
-   static void DrawWaterWaves(Rectangle editor)
-{
-    int startY = (int)editor.Y + (int)editor.Height + 10;
-    
-    for (int i = 0; i < 5; i++)
+    static void DrawWaterWaves(Rectangle editor)
     {
-        int y = startY + i * 8;
-        Color waveColor = new Color(30, 144, 255, 100 - i * 15);
+        int startY = (int)editor.Y + (int)editor.Height + 10;
         
-        for (int x = (int)editor.X; x < editor.X + editor.Width; x += 20)
+        for (int i = 0; i < 5; i++)
         {
-            float waveOffset = (float)Math.Sin(Raylib.GetTime() * 3 + x * 0.1) * 3;
-            Raylib.DrawCircle(x, y + (int)waveOffset, 8, waveColor); // Added (int) cast here
+            int y = startY + i * 8;
+            Color waveColor = new Color(30, 144, 255, 100 - i * 15);
+            
+            for (int x = (int)editor.X; x < editor.X + editor.Width; x += 20)
+            {
+                float waveOffset = (float)Math.Sin(Raylib.GetTime() * 3 + x * 0.1) * 3;
+                Raylib.DrawCircle(x, y + (int)waveOffset, 8, waveColor);
+            }
         }
     }
-}
 }

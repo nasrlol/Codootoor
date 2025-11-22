@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StickmanIDE")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2721571a98ce32a023a401e6a4bf1df2cdf0457a")]
 [assembly: System.Reflection.AssemblyProductAttribute("StickmanIDE")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StickmanIDE")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
