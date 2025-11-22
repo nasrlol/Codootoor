@@ -124,14 +124,9 @@ class UIButton
         Text = text;
     }
 
-    public bool IsMouseOver()
+    public void Draw(bool Hovered)
     {
-        return CheckCollisionPointRec(GetMousePosition(), Bounds);
-    }
-
-    public void Draw()
-    {
-        Color color = IsMouseOver() ? HoverColor : NormalColor;
+        Color color = Hovered ? HoverColor : NormalColor;
 
         if (HasShadow)
         {
@@ -145,7 +140,7 @@ class UIButton
         int textX = (int)Bounds.X + ((int)Bounds.Width - textWidth) / 2;
         DrawText(Text, textX, (int)Bounds.Y + 12, 20, TextColor);
 
-        if (IsMouseOver())
+        if (Hovered)
         {
             DrawRectangleLines((int)Bounds.X - 1, (int)Bounds.Y - 1, (int)Bounds.Width + 2, (int)Bounds.Height + 2, Color.White);
         }

@@ -30,9 +30,6 @@ public partial class Program
             outputWindow.IsVisible = true;
             achievementManager.MarkProgramExecuted();
             statusMessage = "Code executed successfully! Check output window.";
-
-            currentState = GameState.Editing;
-            stickman.Reset();
         }
         else
         {

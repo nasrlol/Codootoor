@@ -3,6 +3,7 @@ using System.Numerics;
 
 using Raylib_cs;
 using static Raylib_cs.Raylib;
+using System.Diagnostics;
 
 namespace Odootoor;
 
@@ -12,8 +13,12 @@ class Frames
     public int width;
     public int height;
     public int count;
+
     public int index;
-    public int prevIndex;
+    // NOTE(luca): timers are used to know when to advance the frame index.
+    public int timer;
+    public int prevTimer;
+
     public float speed;
     public bool stopped;
 
@@ -28,14 +33,21 @@ class Frames
 
     public static bool ChangedIndex(Frames frames)
     {
-        bool result = (frames.index != frames.prevIndex);
+        bool result = (frames.timer != frames.prevTimer);
         return result;
     }
 
     public static void UpdateIndex(Frames frames)
     {
-        int timeIndex = (int)(frames.count * GetTime() * frames.speed);
-        frames.index = (timeIndex % frames.count);
+        frames.timer = (int)(frames.count * GetTime() * frames.speed);
+        frames.index += (frames.timer != frames.prevTimer) ? 1 : 0;
+
+        Debug.Assert(frames.index <= frames.count);
+
+        if (frames.index == frames.count)
+        {
+            frames.index -= frames.count;
+        }
     }
 
 }
@@ -125,7 +137,7 @@ class Animation
 
                 }
             }
-            punchFrames.prevIndex = punchFrames.index;
+            punchFrames.prevTimer = punchFrames.timer;
 
             var manRan = false;
             // Handle input
@@ -228,7 +240,7 @@ class Animation
             if (manRan)
             {
                 Frames.UpdateIndex(runFrames);
-                runFrames.prevIndex = runFrames.index;
+                runFrames.prevTimer = runFrames.timer;
             }
 
             var source = new Rectangle(runFrames.index * runFrames.width, 0, runFrames.width, runFrames.height);
