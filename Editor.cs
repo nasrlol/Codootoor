@@ -32,10 +32,22 @@ public partial class Program
         {
             Bounds = bounds;
             Position = position;
+            Lines = new List<string>();
+            CurrentInput = "";
+            ScrollOffset = 0;
+            CurrentLine = 0;
         }
     }
 
     public const int LINE_HEIGHT = 25;
+
+    public static void HandleInput()
+    {
+        HandleArrowNavigation();
+        ProcessControlKeys();
+        ProcessCharacterInput();
+        UpdateKeyRepeatTiming();
+    }
 
     private static void ProcessControlKeys()
     {
@@ -86,15 +98,15 @@ public partial class Program
     }
 
     private static void ProcessCharacterInput()
-{
-    int key = GetCharPressed();
-    if (key > 0)
     {
-        char c = (char)key;
-        editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, c.ToString());
-        cursorPosition++;
+        int key = GetCharPressed();
+        if (key > 0)
+        {
+            char c = (char)key;
+            editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, c.ToString());
+            cursorPosition++;
+        }
     }
-}
 
     private static bool ShouldRepeatKey()
     {

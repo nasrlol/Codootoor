@@ -9,8 +9,46 @@ using System.Numerics;
 using System.Linq;
 using System.IO;
 
-
-
+class ThemeToggle
+{
+    public Rectangle Bounds { get; set; }
+    
+    public ThemeToggle(Rectangle bounds)
+    {
+        Bounds = bounds;
+    }
+    
+    public void Update()
+    {
+        Vector2 mousePos = Raylib.GetMousePosition();
+        if (Raylib.IsMouseButtonPressed(MouseButton.Left) && Raylib.CheckCollisionPointRec(mousePos, Bounds))
+        {
+            if (!ThemeManager.IsLightMode)
+            {
+                ThemeManager.StartThemeSwitch();
+            }
+        }
+    }
+    
+    public void Draw()
+    {
+        // Toggle background
+        Color bgColor = ThemeManager.IsLightMode ? new Color(200, 200, 220, 255) : new Color(50, 50, 70, 255);
+        Raylib.DrawRectangleRec(Bounds, bgColor);
+        Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, ThemeManager.GetBorderColor());
+        
+        // Toggle knob
+        int knobSize = (int)Bounds.Height - 8;
+        int knobX = ThemeManager.IsLightMode ? (int)(Bounds.X + Bounds.Width - knobSize - 4) : (int)(Bounds.X + 4);
+        
+        Raylib.DrawRectangle(knobX, (int)Bounds.Y + 4, knobSize, knobSize, ThemeManager.GetAccentColor());
+        
+        // Labels
+        Raylib.DrawText("THEME", (int)Bounds.X, (int)Bounds.Y - 25, 20, ThemeManager.GetTextColor());
+        Raylib.DrawText("D", (int)Bounds.X + 5, (int)Bounds.Y + 7, 18, Color.White);
+        Raylib.DrawText("L", (int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7, 18, Color.Black);
+    }
+}
 class UIButton
 {
     public Rectangle Bounds { get; set; }
@@ -54,7 +92,6 @@ class UIButton
         }
     }
 }
-
 class VolumeSlider
 {
     public Rectangle VisualBounds { get; set; }
@@ -507,46 +544,5 @@ class ThemeManager
                 CancelThemeSwitch();
             }
         }
-    }
-}
-
-class ThemeToggle
-{
-    public Rectangle Bounds { get; set; }
-    
-    public ThemeToggle(Rectangle bounds)
-    {
-        Bounds = bounds;
-    }
-    
-    public void Update()
-    {
-        Vector2 mousePos = Raylib.GetMousePosition();
-        if (Raylib.IsMouseButtonPressed(MouseButton.Left) && Raylib.CheckCollisionPointRec(mousePos, Bounds))
-        {
-            if (!ThemeManager.IsLightMode)
-            {
-                ThemeManager.StartThemeSwitch();
-            }
-        }
-    }
-    
-    public void Draw()
-    {
-        // Toggle background
-        Color bgColor = ThemeManager.IsLightMode ? new Color(200, 200, 220, 255) : new Color(50, 50, 70, 255);
-        Raylib.DrawRectangleRec(Bounds, bgColor);
-        Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, ThemeManager.GetBorderColor());
-        
-        // Toggle knob
-        int knobSize = (int)Bounds.Height - 8;
-        int knobX = ThemeManager.IsLightMode ? (int)(Bounds.X + Bounds.Width - knobSize - 4) : (int)(Bounds.X + 4);
-        
-        Raylib.DrawRectangle(knobX, (int)Bounds.Y + 4, knobSize, knobSize, ThemeManager.GetAccentColor());
-        
-        // Labels
-        Raylib.DrawText("THEME", (int)Bounds.X, (int)Bounds.Y - 25, 20, ThemeManager.GetTextColor());
-        Raylib.DrawText("D", (int)Bounds.X + 5, (int)Bounds.Y + 7, 18, Color.White);
-        Raylib.DrawText("L", (int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7, 18, Color.Black);
     }
 }

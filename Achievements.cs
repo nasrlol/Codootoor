@@ -106,13 +106,6 @@ class AchievementManager
             float maxScroll = Math.Max(0, Achievements.Count * 65 - panelHeight + 120);
             AchievementsScrollOffset = Math.Clamp(AchievementsScrollOffset, 0, maxScroll);
         }
-        
-        // Close panel when clicking outside - VERWIJDERD
-        // Dit veroorzaakte het probleem dat de panel direct weer sloot
-        // if (IsMouseButtonPressed(MouseButton.Left) && !CheckCollisionPointRec(mousePos, panelBounds))
-        // {
-        //     ShowAchievementsPanel = false;
-        // }
     }
     
     public void DrawAchievementsPanel(int screenWidth, int screenHeight)
@@ -189,7 +182,7 @@ class AchievementManager
     
     public void DrawAchievementNotifications(int screenWidth, int screenHeight)
     {
-        if (!DEBUGDisableAchivementNotifications)
+        foreach (var achievement in Achievements)
         {
             if (achievement.DisplayTime > 0)
             {

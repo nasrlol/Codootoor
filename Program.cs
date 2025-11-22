@@ -80,12 +80,8 @@ public partial class Program
         tipsButton = new UIButton(CalculateTipsButton(), "Tips");
         saveButton = new UIButton(CalculateSaveButton(), "Save Code");
         volumeSlider = new VolumeSlider(CalculateVolumeSlider(), CalculateVolumeSliderActual());
-
-        Texture2D atlasPunch = LoadTexture("assets/Punch-Sheet.png");
-        Texture2D atlasRun = LoadTexture("assets/Run-Sheet.png");
-        var punchFrames = new Frames(atlasPunch, 64, 64, 10, 6);
-        var runFrames = new Frames(atlasRun, 64, 64, 9, 2);
-        var manPos = new Vector2(screenWidth / 2, screenHeight / 2);
+        themeToggle = new ThemeToggle(CalculateThemeToggle());
+    }
 
     static void UpdateComponentPositions()
     {
@@ -282,7 +278,7 @@ public partial class Program
 
         if (fullCode.Length > 0)
         {
-            outputWindow.OutputText = ExecuteCode(editor.Lines);
+            outputWindow.OutputText = ExecuteCodeInterpreter(editor.Lines);
             outputWindow.IsVisible = true;
             achievementManager.MarkProgramExecuted();
             statusMessage = "Code executed successfully! Check output window.";
@@ -294,6 +290,44 @@ public partial class Program
         {
             statusMessage = "Write some code first!";
         }
+    }
+
+    // Simple code interpreter - hernoemd om conflict te voorkomen
+    public static string ExecuteCodeInterpreter(List<string> lines)
+    {
+        var output = new List<string>();
+        output.Add("=== Program Output ===");
+        
+        foreach (var line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            
+            // Simple "print" command recognition
+            if (line.Trim().StartsWith("print ") && line.Contains("\""))
+            {
+                try
+                {
+                    int start = line.IndexOf('"') + 1;
+                    int end = line.LastIndexOf('"');
+                    if (end > start)
+                    {
+                        string text = line.Substring(start, end - start);
+                        output.Add(text);
+                    }
+                }
+                catch
+                {
+                    output.Add($"Error in print statement: {line}");
+                }
+            }
+            else
+            {
+                output.Add($"Executed: {line.Trim()}");
+            }
+        }
+        
+        output.Add("=== End of Output ===");
+        return string.Join("\n", output);
     }
 
     static Rectangle CalculateCodeEditor()
