@@ -92,7 +92,7 @@ public partial class Program
             !quickDeliveryActive &&
             currentState == GameState.Editing)
         {
-            StartQuickDeliveryForLetters();
+            //StartQuickDeliveryForLetters();
         }
 
         //StartQuickDeliveryForLetters();

@@ -11,6 +11,14 @@ using System.IO;
 
 public partial class Program
 {
+    // Key repeating system
+    private static float initialDelay = 0.3f;
+    private static float repeatRate = 0.05f;
+    private static float keyHoldTimer = 0f;
+    private static KeyboardKey lastHeldKey = KeyboardKey.Null;
+    private static bool isRepeating = false;
+    private static int cursorPosition = 0;
+
     public struct Editor
     {
         public Rectangle Bounds;
@@ -26,31 +34,68 @@ public partial class Program
             Position = position;
         }
     }
-    public static Editor editor;
 
+    public static Editor editor = new Editor(new Rectangle(0, 0, 0, 0), Vector2.Zero);
     public const int LINE_HEIGHT = 25;
 
     public static void HandleInput()
     {
+        HandleArrowNavigation();
+        ProcessControlKeys();
+        ProcessCharacterInput();
+        UpdateKeyRepeatTiming();
+    }
+
+    private static void ProcessControlKeys()
+    {
         // Handle backspace
-        if (IsKeyPressed(KeyboardKey.Backspace) && editor.CurrentInput.Length > 0)
+        if (IsKeyPressed(KeyboardKey.Backspace))
         {
-            editor.CurrentInput = editor.CurrentInput.Substring(0, editor.CurrentInput.Length - 1);
+            HandleBackspace();
+            lastHeldKey = KeyboardKey.Backspace;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
 
-        // Handle enter (both regular and keypad enter)
-        if (IsKeyPressed(KeyboardKey.Enter))
+        if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
         {
-            if (!string.IsNullOrEmpty(editor.CurrentInput))
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
             {
-                editor.Lines.Add(editor.CurrentInput);
-                editor.CurrentInput = "";
-                editor.CurrentLine = editor.Lines.Count - 1;
-                editor.ScrollOffset = Math.Max(0, (editor.Lines.Count - 1) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);
+                HandleBackspace();
             }
         }
 
-        // Handle character input
+        // Handle enter
+        if (IsKeyPressed(KeyboardKey.Enter))
+        {
+            HandleEnter();
+            lastHeldKey = KeyboardKey.Enter;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
+
+        // Handle space (with proper repeating)
+        if (IsKeyPressed(KeyboardKey.Space))
+        {
+            HandleSpace();
+            lastHeldKey = KeyboardKey.Space;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
+
+        if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleSpace();
+            }
+        }
+    }
+
+    private static void ProcessCharacterInput()
+    {
         int key = GetCharPressed();
         if (key > 0)
         {
@@ -59,7 +104,122 @@ public partial class Program
                 c == '(' || c == ')' || c == '{' || c == '}' || c == '=' ||
                 c == '+' || c == '-' || c == '*' || c == '/')
             {
-                editor.CurrentInput += c;
+                editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, c.ToString());
+                cursorPosition++;
+            }
+        }
+    }
+
+    private static bool ShouldRepeatKey()
+    {
+        if (!isRepeating)
+        {
+            if (keyHoldTimer >= initialDelay)
+            {
+                isRepeating = true;
+                keyHoldTimer = 0f;
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            if (keyHoldTimer >= repeatRate)
+            {
+                keyHoldTimer = 0f;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private static void UpdateKeyRepeatTiming()
+    {
+        if (lastHeldKey != KeyboardKey.Null && !IsKeyDown(lastHeldKey))
+        {
+            lastHeldKey = KeyboardKey.Null;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
+    }
+
+    private static void HandleBackspace()
+    {
+        if (cursorPosition > 0)
+        {
+            editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition - 1, 1);
+            cursorPosition--;
+        }
+    }
+
+    private static void HandleEnter()
+    {
+        if (!string.IsNullOrEmpty(editor.CurrentInput))
+        {
+            editor.Lines.Add(editor.CurrentInput);
+            editor.CurrentInput = "";
+            cursorPosition = 0;
+            editor.CurrentLine = editor.Lines.Count;
+            editor.ScrollOffset = Math.Max(0, (editor.Lines.Count) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);
+        }
+    }
+
+    private static void HandleSpace()
+    {
+        editor.CurrentInput = editor.CurrentInput.Insert(cursorPosition, " ");
+        cursorPosition++;
+    }
+
+    private static void HandleArrowNavigation()
+    {
+        // Left/Right arrow handling
+        if (IsKeyPressed(KeyboardKey.Left))
+        {
+            if (cursorPosition > 0) cursorPosition--;
+        }
+
+        if (IsKeyPressed(KeyboardKey.Right))
+        {
+            if (cursorPosition < editor.CurrentInput.Length) cursorPosition++;
+        }
+
+        // Up arrow - go to previous line
+        if (IsKeyPressed(KeyboardKey.Up))
+        {
+            if (editor.CurrentLine > 0)
+            {
+                editor.CurrentLine--;
+                // If going from new line to existing line, save current input
+                if (editor.CurrentLine == editor.Lines.Count - 1 && !string.IsNullOrEmpty(editor.CurrentInput))
+                {
+                    editor.Lines[editor.CurrentLine] = editor.CurrentInput;
+                }
+                editor.CurrentInput = editor.Lines[editor.CurrentLine];
+                cursorPosition = editor.CurrentInput.Length;
+            }
+        }
+
+        // Down arrow - go to next line
+        if (IsKeyPressed(KeyboardKey.Down))
+        {
+            if (editor.CurrentLine < editor.Lines.Count)
+            {
+                // Save current line before moving down
+                if (editor.CurrentLine < editor.Lines.Count)
+                {
+                    editor.Lines[editor.CurrentLine] = editor.CurrentInput;
+                }
+
+                editor.CurrentLine++;
+                if (editor.CurrentLine < editor.Lines.Count)
+                {
+                    editor.CurrentInput = editor.Lines[editor.CurrentLine];
+                }
+                else
+                {
+                    editor.CurrentInput = "";  // New line at the end
+                }
+                cursorPosition = editor.CurrentInput.Length;
             }
         }
     }
@@ -90,13 +250,13 @@ public partial class Program
         DrawScrollBar();
     }
 
-    public static void DrawLineNumbers()
+    private static void DrawLineNumbers()
     {
         DrawRectangle((int)editor.Bounds.X, (int)editor.Bounds.Y, 40, (int)editor.Bounds.Height, new Color(35, 35, 45, 255));
         DrawLine((int)editor.Bounds.X + 40, (int)editor.Bounds.Y, (int)editor.Bounds.X + 40, (int)editor.Bounds.Y + (int)editor.Bounds.Height, new Color(60, 60, 80, 255));
     }
 
-    public static void DrawCodeLines()
+    private static void DrawCodeLines()
     {
         int visibleLines = (int)(editor.Bounds.Height / LINE_HEIGHT);
         int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
@@ -116,27 +276,37 @@ public partial class Program
         }
     }
 
-    public static void DrawCurrentInput()
+    private static void DrawCurrentInput()
     {
         int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
         float currentInputY = editor.Bounds.Y + 20 + (editor.Lines.Count - startLine) * LINE_HEIGHT - (editor.ScrollOffset % LINE_HEIGHT);
 
         if (currentInputY >= editor.Bounds.Y && currentInputY <= editor.Bounds.Y + editor.Bounds.Height - LINE_HEIGHT)
         {
+            // Show the correct line number for the current input
             DrawText($"{editor.Lines.Count + 1}:", (int)editor.Bounds.X + 10, (int)currentInputY, 18, new Color(150, 150, 170, 255));
 
             // Draw cursor with blinking effect
-            string displayText = editor.CurrentInput;
+            string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
+            string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
+
+            // Draw text before cursor
+            DrawText(textBeforeCursor, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
+
+            // Draw cursor
             if ((int)(GetTime() * 2) % 2 == 0)
             {
-                displayText += "_";
+                Vector2 cursorPos = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
+                DrawRectangle((int)editor.Bounds.X + 45 + (int)cursorPos.X, (int)currentInputY, 2, 18, Color.White);
             }
 
-            DrawText(displayText, (int)editor.Bounds.X + 45, (int)currentInputY, 18, Color.White);
+            // Draw text after cursor
+            Vector2 beforeCursorSize = MeasureTextEx(GetFontDefault(), textBeforeCursor, 18, 0);
+            DrawText(textAfterCursor, (int)editor.Bounds.X + 45 + (int)beforeCursorSize.X, (int)currentInputY, 18, Color.White);
         }
     }
 
-    public static void DrawScrollBar()
+    private static void DrawScrollBar()
     {
         if (editor.Lines.Count * LINE_HEIGHT > editor.Bounds.Height)
         {
@@ -154,6 +324,7 @@ public partial class Program
         editor.CurrentInput = "";
         editor.ScrollOffset = 0;
         editor.CurrentLine = 0;
+        cursorPosition = 0;
     }
 
     public static void SaveCode()
