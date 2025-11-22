@@ -139,7 +139,7 @@ public partial class Program
                     }
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
-                        ExecuteCode();
+                        ExecuteCode(editor.Lines);
                     }
                     else if (StickmanOver(stickmanPos, saveButton.Bounds))
                     {
