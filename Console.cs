@@ -1,93 +1,42 @@
 namespace Odootoor;
-using System.Diagnostics;
-using Raylib_cs;
 
 // Simple code interpreter
 public partial class Program
 {
     public static string ExecuteCode(List<string> lines)
     {
-        return "";
-    }
-
-    static void ExecuteCode()
-    {
-        string fullCode = string.Join("\n", editor.Lines) +
-                          (string.IsNullOrEmpty(editor.CurrentInput) ? "" : "\n" + editor.CurrentInput);
-
-        if (!string.IsNullOrWhiteSpace(editor.CurrentInput))
+        var output = new List<string>();
+        output.Add("=== Program Output ===");
+        
+        foreach (var line in lines)
         {
-            editor.Lines.Add(editor.CurrentInput);
-            editor.CurrentInput = "";
-        }
-
-        if (fullCode.Length > 0)
-        {
-            outputWindow.OutputText = ExecuteCode(editor.Lines);
-            outputWindow.IsVisible = true;
-            achievementManager.MarkProgramExecuted();
-            statusMessage = "Code executed successfully! Check output window.";
-
-            currentState = GameState.Editing;
-            stickman.Reset();
-        }
-        else
-        {
-            statusMessage = "Write some code first!";
-        }
-    }
-    public class Output
-    {
-        public Process proc;
-        public List<string> buffer = new List<string>();
-        public const int MaxLines = 200;
-
-        public void Init()
-        {
-            proc = new Process();
-            proc.StartInfo.FileName = "/bin/bash";
-            proc.StartInfo.Arguments = "-c \"cat\"";
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-
-            proc.Start();
-
-            Task.Run(() =>
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            
+            // Simple "print" command recognition
+            if (line.Trim().StartsWith("print ") && line.Contains("\""))
             {
-                var streamWriter = proc.StandardInput;
-                streamWriter.WriteLine("1");
-                while (!proc.StandardOutput.EndOfStream)
+                try
                 {
-                    string line = proc.StandardOutput.ReadLine();
-                    lock (buffer)
+                    int start = line.IndexOf('"') + 1;
+                    int end = line.LastIndexOf('"');
+                    if (end > start)
                     {
-                        buffer.Add(line);
-                        if (buffer.Count > MaxLines)
-                            buffer.RemoveAt(0);
+                        string text = line.Substring(start, end - start);
+                        output.Add(text);
                     }
                 }
-            });
-        }
-
-        public void Draw(Rectangle bounds)
-        {
-            int y = (int)bounds.Y + 40;
-            lock (buffer)
-            {
-                foreach (var line in buffer)
+                catch
                 {
-                    Raylib.DrawText(line, (int)bounds.X + 10, y, 14, Color.White);
-                    y += 20;
+                    output.Add($"Error in print statement: {line}");
                 }
             }
+            else
+            {
+                output.Add($"Executed: {line.Trim()}");
+            }
         }
-
-        public void Stop()
-        {
-            if (proc != null && !proc.HasExited)
-                proc.Kill();
-        }
+        
+        output.Add("=== End of Output ===");
+        return string.Join("\n", output);
     }
 }

@@ -18,13 +18,14 @@ class Frames
     public bool stopped;
 
     public Frames(Texture2D _atlas, int _width, int _height, int _count, float _speed)
-    {
-        atlas = _atlas;
-        width = _width;
-        height = _height;
-        count = _count;
-        speed = _speed;
-    }
+{
+    atlas = _atlas;
+    width = _width;
+    height = _height;
+    count = _count;
+    speed = _speed;
+    stopped = false; 
+}
 
     public static bool ChangedIndex(Frames frames)
     {
@@ -37,7 +38,6 @@ class Frames
         int timeIndex = (int)(frames.count * GetTime() * frames.speed);
         frames.index = (timeIndex % frames.count);
     }
-
 }
 
 class Animation

@@ -1,7 +1,7 @@
-﻿using Raylib_cs;
+﻿﻿using Raylib_cs;
 using static Raylib_cs.Raylib;
+
 using System;
-using static System.Console;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
@@ -9,126 +9,187 @@ using System.IO;
 
 namespace Odootoor;
 
-using static Odootoor.UIButton;
-using static Odootoor.VolumeSlider;
-
 enum GameState { Editing, Delivering, Returning, Success, QuickDelivery, Falling }
 
 public partial class Program
 {
-
     static int screenWidth = 1400;
     static int screenHeight = 900;
     const int CODE_EDITOR_WIDTH_PERCENT = 70;
     const int CODE_EDITOR_HEIGHT_PERCENT = 85;
-
+    
     static AchievementManager achievementManager = new AchievementManager();
+    static Editor editor;
     static Stickman stickman;
-    static UIButton executeButton;
-    static UIButton achievementsButton;
-    static UIButton clearButton;
-    static UIButton tipsButton;
-    static UIButton saveButton;
+    static UIButton executeButton, achievementsButton, clearButton, tipsButton, saveButton;
     static VolumeSlider volumeSlider;
+    static ThemeToggle themeToggle;
     static OutputWindow outputWindow = new OutputWindow();
     static TipsWindow tipsWindow = new TipsWindow();
-
-    static Random rand = new Random();
-    static bool quickDeliveryActive = false;
-    static string quickDeliveryLetter = "";
-    static float quickDeliveryTimer = 0;
-    static Vector2 quickDeliveryTargetPos;
-    static Vector2 letterDropPosition;
-
+    
     static GameState currentState = GameState.Editing;
     static string statusMessage = "Welcome to Stickman IDE! Type code to begin...";
-    static int lettersDelivered = 0;
 
-    static void UpdateQuickDelivery()
+    static void Main()
     {
-        quickDeliveryTimer -= GetFrameTime();
-
-        if (stickman.Position.X <= quickDeliveryTargetPos.X + 5f)
+        try
         {
-            quickDeliveryActive = false;
-            currentState = GameState.Editing;
+            InitWindow(screenWidth, screenHeight, "Stickman IDE - Code Delivery Adventure");
+            SetWindowState(ConfigFlags.ResizableWindow);
+            SetTargetFPS(60);
+            SetExitKey(KeyboardKey.Null);
+
+            MusicManager.Initialize();
+            MusicManager.LoadMusic();
+
+            InitializeComponents();
+
+            while (!WindowShouldClose())
+            {
+                if (IsWindowResized())
+                {
+                    screenWidth = GetScreenWidth();
+                    screenHeight = GetScreenHeight();
+                    UpdateComponentPositions();
+                }
+
+                Update();
+                Draw();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            MusicManager.Stop();
+            CloseWindow();
+        }
+    }
+
+    static void InitializeComponents()
+    {
+        editor = new Editor(CalculateCodeEditor(), CalculateCodeEditorPosition());
+        stickman = new Stickman(CalculateStickmanStartPosition());
+        executeButton = new UIButton(CalculateExecuteButton(), "Execute Code");
+        achievementsButton = new UIButton(CalculateAchievementsButton(), "Achievements");
+        clearButton = new UIButton(CalculateClearButton(), "Clear Code");
+        tipsButton = new UIButton(CalculateTipsButton(), "Tips");
+        saveButton = new UIButton(CalculateSaveButton(), "Save Code");
+        volumeSlider = new VolumeSlider(CalculateVolumeSlider(), CalculateVolumeSliderActual());
+        themeToggle = new ThemeToggle(CalculateThemeToggle());
+    }
+
+    static void UpdateComponentPositions()
+    {
+        editor.Bounds = CalculateCodeEditor();
+        editor.Position = CalculateCodeEditorPosition();
+        stickman.OriginalPosition = CalculateStickmanStartPosition();
+        
+        if (currentState == GameState.Editing || currentState == GameState.Success)
+        {
             stickman.Reset();
-            statusMessage = "Quick delivery successful!";
-            lettersDelivered++;
-            achievementManager.MarkQuickDelivery(); // Track quick deliveries for achievements
         }
-        else if (quickDeliveryTimer <= 0)
+        
+        executeButton.Bounds = CalculateExecuteButton();
+        achievementsButton.Bounds = CalculateAchievementsButton();
+        clearButton.Bounds = CalculateClearButton();
+        tipsButton.Bounds = CalculateTipsButton();
+        saveButton.Bounds = CalculateSaveButton();
+        volumeSlider.VisualBounds = CalculateVolumeSlider();
+        volumeSlider.ActualBounds = CalculateVolumeSliderActual();
+        themeToggle.Bounds = CalculateThemeToggle();
+        
+        outputWindow.Bounds = new Rectangle(screenWidth / 2 - 400, screenHeight / 2 - 250, 800, 500);
+        tipsWindow.Bounds = new Rectangle(screenWidth / 2 - 300, screenHeight / 2 - 200, 600, 400);
+    }
+
+    static void Update()
+    {
+        MusicManager.Update();
+        Vector2 mousePos = GetMousePosition();
+
+        themeToggle.Update();
+        ThemeManager.Update();
+        
+        if (IsKeyPressed(KeyboardKey.Escape))
         {
-            quickDeliveryActive = false;
-            currentState = GameState.Editing;
-            stickman.Reset();
-            statusMessage = "Quick delivery timed out!";
+            achievementManager.ShowAchievementsPanel = false;
+            outputWindow.IsVisible = false;
+            tipsWindow.IsVisible = false;
+            ThemeManager.CancelThemeSwitch();
+        }
+        
+        if (IsKeyPressed(KeyboardKey.F1))
+        {
+            tipsWindow.IsVisible = !tipsWindow.IsVisible;
+        }
+        
+        volumeSlider.Update();
+        HandleScroll(mousePos);
+        outputWindow.HandleScroll(mousePos);
+        
+        if (IsMouseButtonPressed(MouseButton.Left))
+        {
+            if (executeButton.IsMouseOver())
+            {
+                ExecuteCode();
+            }
+            else if (achievementsButton.IsMouseOver())
+            {
+                achievementManager.ShowAchievementsPanel = !achievementManager.ShowAchievementsPanel;
+            }
+            else if (clearButton.IsMouseOver())
+            {
+                ClearEditor();
+                statusMessage = "Code editor cleared!";
+            }
+            else if (tipsButton.IsMouseOver())
+            {
+                tipsWindow.IsVisible = !tipsWindow.IsVisible;
+            }
+            else if (saveButton.IsMouseOver())
+            {
+                SaveCode();
+            }
         }
 
-        // Fall chance - 5% chance to fall
-        float distanceToTarget = Vector2.Distance(stickman.Position, quickDeliveryTargetPos);
-        float totalDistance = Vector2.Distance(stickman.OriginalPosition, quickDeliveryTargetPos);
-
-        if (distanceToTarget < totalDistance * 0.2f && rand.Next(0, 20) == 0 && !stickman.IsFalling)
+        if (outputWindow.CloseButtonClicked())
         {
-            currentState = GameState.Falling;
-            letterDropPosition = new Vector2(stickman.Position.X, editor.Bounds.Y + editor.Bounds.Height + 30);
-            stickman.StartFall(stickman.Position, letterDropPosition, quickDeliveryLetter);
-            statusMessage = "Oh no! Stickman dropped the letter in the water!";
-            quickDeliveryActive = false;
+            outputWindow.IsVisible = false;
         }
+
+        if (tipsWindow.CloseButtonClicked())
+        {
+            tipsWindow.IsVisible = false;
+        }
+
+        if (achievementManager.ShowAchievementsPanel)
+        {
+            achievementManager.HandleAchievementsPanelInteraction(mousePos, screenWidth, screenHeight);
+        }
+
+        if (currentState == GameState.Editing)
+        {
+            UpdateEditingState(mousePos);
+        }
+
+        UpdateStickman();
+        achievementManager.UpdateAchievementDisplays();
     }
 
     static void UpdateEditingState(Vector2 mousePos)
     {
-        string previousInput = editor.CurrentInput;
-
         HandleInput();
         achievementManager.CheckAchievements(editor.CurrentInput, editor.Lines.Count);
-
-        if (editor.CurrentInput.Length > previousInput.Length &&
-            char.IsLetter(editor.CurrentInput[^1]) &&
-            !quickDeliveryActive &&
-            currentState == GameState.Editing)
-        {
-            //StartQuickDeliveryForLetters();
-        }
-
-        //StartQuickDeliveryForLetters();
-    }
-
-    // function to write code
-
-
-    static void StartQuickDeliveryForLetters()
-    {
-        if (!string.IsNullOrEmpty(editor.CurrentInput) &&
-            char.IsLetter(editor.CurrentInput[^1]) &&
-            !quickDeliveryActive &&
-            currentState == GameState.Editing)
-        {
-            quickDeliveryActive = true;
-            quickDeliveryLetter = editor.CurrentInput[^1].ToString();
-            quickDeliveryTimer = 1.5f;
-
-            quickDeliveryTargetPos = new Vector2(
-                editor.Bounds.X + 100f,
-                editor.Bounds.Y + 50f
-            );
-
-            currentState = GameState.QuickDelivery;
-            statusMessage = "Quick delivery! Stickman is running...";
-
-            stickman.Position = stickman.OriginalPosition;
-            stickman.CurrentWord = quickDeliveryLetter;
-        }
     }
 
     static void UpdateStickman()
     {
         if (currentState == GameState.QuickDelivery)
         {
-            stickman.Update(currentState, quickDeliveryTargetPos);
+            // Quick delivery logic removed
         }
         else if (currentState == GameState.Falling)
         {
@@ -146,201 +207,191 @@ public partial class Program
         }
     }
 
-    static void Main()
+    static void Draw()
     {
-        InitWindow(screenWidth, screenHeight, "Stickman IDE - Code Delivery Adventure");
-        SetWindowState(ConfigFlags.ResizableWindow);
-        SetTargetFPS(60);
-        SetExitKey(KeyboardKey.Null);
+        BeginDrawing();
+        
+        ClearBackground(ThemeManager.GetBackgroundColor());
+        
+        DrawHeader();
+        
+        DrawEditor();
+        EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
+        EnvironmentRenderer.DrawHouse(CalculateHousePosition());
+        stickman.Draw();
 
-        // InitializeComponents();
-        editor = new Editor(CalculateCodeEditor(), CalculateCodeEditorPosition());
-        stickman = new Stickman(CalculateStickmanStartPosition());
-        executeButton = new UIButton(CalculateExecuteButton(), "Execute Code");
-        achievementsButton = new UIButton(CalculateAchievementsButton(), "Achievements");
-        clearButton = new UIButton(CalculateClearButton(), "Clear Code");
-        tipsButton = new UIButton(CalculateTipsButton(), "Tips");
-        saveButton = new UIButton(CalculateSaveButton(), "Save Code");
-        volumeSlider = new VolumeSlider(CalculateVolumeSlider(), CalculateVolumeSliderActual());
 
-        while (!WindowShouldClose())
-        {
-            if (IsWindowResized())
-            {
-                screenWidth = GetScreenWidth();
-                screenHeight = GetScreenHeight();
+        executeButton.Draw();
+        achievementsButton.Draw();
+        clearButton.Draw();
+        tipsButton.Draw();
+        saveButton.Draw();
+        volumeSlider.Draw();
+        themeToggle.Draw();
 
-                editor.Bounds = CalculateCodeEditor();
-                editor.Position = CalculateCodeEditorPosition();
-                stickman.OriginalPosition = CalculateStickmanStartPosition();
-                if (currentState == GameState.Editing || currentState == GameState.Success)
-                {
-                    stickman.Reset();
-                }
-                executeButton.Bounds = CalculateExecuteButton();
-                achievementsButton.Bounds = CalculateAchievementsButton();
-                clearButton.Bounds = CalculateClearButton();
-                tipsButton.Bounds = CalculateTipsButton();
-                saveButton.Bounds = CalculateSaveButton();
-                volumeSlider.VisualBounds = CalculateVolumeSlider();
-                volumeSlider.ActualBounds = CalculateVolumeSliderActual();
-                outputWindow.Bounds = new Rectangle(screenWidth / 2 - 400, screenHeight / 2 - 250, 800, 500);
-                tipsWindow.Bounds = new Rectangle(screenWidth / 2 - 300, screenHeight / 2 - 200, 600, 400);
-            }
+        DrawStatusMessage();
 
-            // Update();
-            {
-                Vector2 mousePos = GetMousePosition();
+        outputWindow.Draw();
+        tipsWindow.Draw();
+        achievementManager.DrawAchievementsPanel(screenWidth, screenHeight);
+        achievementManager.DrawAchievementNotifications(screenWidth, screenHeight);
+        
+        ThemeManager.DrawThemePopup(screenWidth, screenHeight);
 
-                // Handle ESC for panels
-                if (IsKeyPressed(KeyboardKey.Escape))
-                {
-                    achievementManager.ShowAchievementsPanel = false;
-                    outputWindow.IsVisible = false;
-                    tipsWindow.IsVisible = false;
-                }
-
-                // Handle F1 for tips
-                if (IsKeyPressed(KeyboardKey.F1))
-                {
-                    tipsWindow.IsVisible = !tipsWindow.IsVisible;
-                }
-
-                volumeSlider.Update();
-                HandleScroll(mousePos);
-                outputWindow.HandleScroll(mousePos);
-
-                // FIXED: Achievements button - simplified click detection
-                if (IsMouseButtonPressed(MouseButton.Left))
-                {
-                    if (achievementsButton.IsMouseOver())
-                    {
-                        achievementManager.ShowAchievementsPanel = !achievementManager.ShowAchievementsPanel;
-                        Console.WriteLine("Achievements button clicked!"); // Debug line
-                    }
-                    else if (clearButton.IsMouseOver())
-                    {
-                        ClearEditor();
-                        statusMessage = "Code editor cleared!";
-                    }
-                    else if (tipsButton.IsMouseOver())
-                    {
-                        tipsWindow.IsVisible = !tipsWindow.IsVisible;
-                    }
-                    else if (executeButton.IsMouseOver())
-                    {
-                        ExecuteCode();
-                    }
-                    else if (saveButton.IsMouseOver())
-                    {
-                        SaveCode();
-                    }
-                }
-
-                // Close buttons for windows
-                if (outputWindow.CloseButtonClicked())
-                {
-                    outputWindow.IsVisible = false;
-                }
-
-                if (tipsWindow.CloseButtonClicked())
-                {
-                    tipsWindow.IsVisible = false;
-                }
-
-                // Close achievements panel when clicking outside
-                if (achievementManager.ShowAchievementsPanel && IsMouseButtonPressed(MouseButton.Left))
-                {
-                    Rectangle achievementsPanel = new Rectangle(
-                                    (screenWidth - 500) / 2,
-                                    (screenHeight - 600) / 2,
-                                    500,
-                                    600
-                    );
-
-                    if (!CheckCollisionPointRec(mousePos, achievementsPanel) &&
-                                    !CheckCollisionPointRec(mousePos, achievementsButton.Bounds))
-                    {
-                        achievementManager.ShowAchievementsPanel = false;
-                    }
-                }
-
-                if (quickDeliveryActive)
-                {
-                    UpdateQuickDelivery();
-                }
-
-                if (currentState == GameState.Editing)
-                {
-                    UpdateEditingState(mousePos);
-                }
-
-                UpdateStickman();
-                achievementManager.UpdateAchievementDisplays();
-            }
-
-            // Draw()
-            {
-                BeginDrawing();
-
-                // Background
-                ClearBackground(new Color(20, 20, 30, 255));
-
-                // DrawHeader()
-                {
-                    // Header background
-                    DrawRectangle(0, 0, screenWidth, 60, new Color(40, 40, 60, 255));
-                    DrawRectangle(0, 60, screenWidth, 2, new Color(80, 60, 120, 255));
-
-                    // Title
-                    DrawText("STICKMAN IDE", screenWidth / 2 - 150, 10, 36, Color.White);
-                    DrawText("Code Delivery Adventure", screenWidth / 2 - 120, 45, 18, new Color(200, 180, 255, 255));
-                }
-
-                DrawEditor();
-                EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
-                EnvironmentRenderer.DrawHouse(CalculateHousePosition());
-                stickman.Draw();
-
-                if (currentState == GameState.Falling)
-                {
-                    EnvironmentRenderer.DrawSplashEffect(letterDropPosition, 1.0f - stickman.FallTimer);
-                }
-
-                // Draw UI elements
-                executeButton.Draw();
-                achievementsButton.Draw();
-                clearButton.Draw();
-                tipsButton.Draw();
-                saveButton.Draw();
-                volumeSlider.Draw();
-
-                // DrawStatusMessage();
-                {
-                    Color statusColor = currentState switch
-                    {
-                        GameState.Success => Color.Green,
-                        GameState.Falling => Color.Red,
-                        GameState.QuickDelivery => Color.Yellow,
-                        _ => new Color(100, 200, 255, 255)
-                    };
-
-                    DrawText("Status: " + statusMessage, 20, 70, 20, statusColor);
-                }
-
-                // Draw windows
-                outputWindow.Draw();
-                tipsWindow.Draw();
-                achievementManager.DrawAchievementsPanel(screenWidth, screenHeight);
-                achievementManager.DrawAchievementNotifications(screenWidth, screenHeight);
-
-                EndDrawing();
-            }
-
-        } // shouldClose
-
-        CloseWindow();
+        EndDrawing();
     }
 
+    static void DrawHeader()
+    {
+        DrawRectangle(0, 0, screenWidth, 60, ThemeManager.GetHeaderColor());
+        DrawRectangle(0, 60, screenWidth, 2, ThemeManager.GetAccentColor());
+        
+        DrawText("STICKMAN IDE", screenWidth / 2 - 150, 10, 36, ThemeManager.GetTextColor());
+        DrawText("Code Delivery Adventure", screenWidth / 2 - 120, 45, 18, ThemeManager.GetLightAccentColor());
+    }
 
+    static void DrawStatusMessage()
+    {
+        Color statusColor = currentState switch
+        {
+            GameState.Success => Color.Green,
+            GameState.Falling => Color.Red,
+            GameState.QuickDelivery => Color.Yellow,
+            _ => new Color(100, 200, 255, 255)
+        };
+        
+        DrawText("Status: " + statusMessage, 20, 70, 20, statusColor);
+    }
+
+    static void ExecuteCode()
+    {
+        string fullCode = string.Join("\n", editor.Lines) +
+                          (string.IsNullOrEmpty(editor.CurrentInput) ? "" : "\n" + editor.CurrentInput);
+
+        if (!string.IsNullOrWhiteSpace(editor.CurrentInput))
+        {
+            editor.Lines.Add(editor.CurrentInput);
+            editor.CurrentInput = "";
+        }
+
+        if (fullCode.Length > 0)
+        {
+            outputWindow.OutputText = ExecuteCode(editor.Lines);
+            outputWindow.IsVisible = true;
+            achievementManager.MarkProgramExecuted();
+            statusMessage = "Code executed successfully! Check output window.";
+
+            currentState = GameState.Editing;
+            stickman.Reset();
+        }
+        else
+        {
+            statusMessage = "Write some code first!";
+        }
+    }
+
+    static Rectangle CalculateCodeEditor()
+    {
+        return new Rectangle(
+            screenWidth * 0.02f,
+            screenHeight * 0.12f,
+            screenWidth * (CODE_EDITOR_WIDTH_PERCENT / 100f),
+            screenHeight * (CODE_EDITOR_HEIGHT_PERCENT / 100f)
+        );
+    }
+
+    static Vector2 CalculateCodeEditorPosition()
+    {
+        return new Vector2(screenWidth * 0.08f, screenHeight * 0.187f);
+    }
+
+    static Rectangle CalculateExecuteButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.15f,
+            180,
+            40
+        );
+    }
+
+    static Rectangle CalculateAchievementsButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.22f,
+            180,
+            40
+        );
+    }
+
+    static Rectangle CalculateClearButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.29f,
+            180,
+            40
+        );
+    }
+
+    static Rectangle CalculateTipsButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.36f,
+            180,
+            40
+        );
+    }
+
+    static Rectangle CalculateSaveButton()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.43f,
+            180,
+            40
+        );
+    }
+
+    static Rectangle CalculateVolumeSlider()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.57f,
+            200,
+            20
+        );
+    }
+
+    static Rectangle CalculateVolumeSliderActual()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.56f,
+            200,
+            30
+        );
+    }
+
+    static Rectangle CalculateThemeToggle()
+    {
+        return new Rectangle(
+            screenWidth * 0.75f,
+            screenHeight * 0.65f,
+            80,
+            30
+        );
+    }
+
+    static Vector2 CalculateHousePosition()
+    {
+        return new Vector2(screenWidth * 0.78f, screenHeight * 0.88f);
+    }
+
+    static Vector2 CalculateStickmanStartPosition()
+    {
+        return new Vector2(screenWidth * 0.84f, screenHeight * 0.92f);
+    }
 }
