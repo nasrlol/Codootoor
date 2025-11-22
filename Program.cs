@@ -7,6 +7,8 @@ using System.IO;
 
 enum GameState { Editing, Delivering, Returning, Success, QuickDelivery, Falling }
 
+
+
 class Achievement
 {
     public string Name { get; set; }
@@ -158,6 +160,8 @@ class CodeEditor
     public float ScrollOffset { get; set; }
     public int CurrentLine { get; set; }
     public Vector2 Position { get; set; }
+
+
     
     private const int LINE_HEIGHT = 25;
     
@@ -166,35 +170,43 @@ class CodeEditor
         Bounds = bounds;
         Position = position;
     }
-    
+
     public void HandleInput()
     {
+        // Handle backspace
+        if (Raylib.IsKeyPressed(KeyboardKey.Backspace) && CurrentInput.Length > 0)
+        {
+            CurrentInput = CurrentInput.Substring(0, CurrentInput.Length - 1);
+        }
+
+        // Handle enter (both regular and keypad enter)
+        if (Raylib.IsKeyPressed(KeyboardKey.Enter))
+        {
+            if (!string.IsNullOrEmpty(CurrentInput))
+            {
+                Lines.Add(CurrentInput);
+                CurrentInput = "";
+                CurrentLine = Lines.Count - 1;
+                ScrollOffset = Math.Max(0, (Lines.Count - 1) * LINE_HEIGHT - Bounds.Height + LINE_HEIGHT);
+            }
+        }
+
+        // Handle character input
         int key = Raylib.GetCharPressed();
-        while (key > 0)
+        if (key > 0)
         {
             char c = (char)key;
-            if (char.IsLetterOrDigit(c) || c == ' ' || c == '.' || c == ',' || c == ';' || 
-                c == '(' || c == ')' || c == '{' || c == '}' || c == '=' || 
+            if (char.IsLetterOrDigit(c) || c == ' ' || c == '.' || c == ',' || c == ';' ||
+                c == '(' || c == ')' || c == '{' || c == '}' || c == '=' ||
                 c == '+' || c == '-' || c == '*' || c == '/')
             {
                 CurrentInput += c;
             }
-            key = Raylib.GetCharPressed();
-        }
-
-        if (Raylib.IsKeyPressed(KeyboardKey.Backspace) && CurrentInput.Length > 0)
-            CurrentInput = CurrentInput.Substring(0, CurrentInput.Length - 1);
-
-        if (Raylib.IsKeyPressed(KeyboardKey.Enter))
-        {
-            if (!string.IsNullOrWhiteSpace(CurrentInput))
-            {
-                Lines.Add(CurrentInput);
-                CurrentInput = "";
-            }
         }
     }
-    
+
+
+
     public void HandleScroll(Vector2 mousePos)
     {
         if (Raylib.CheckCollisionPointRec(mousePos, Bounds))
@@ -286,6 +298,9 @@ class CodeEditor
         ScrollOffset = 0;
         CurrentLine = 0;
     }
+
+
+    
 }
 
 class AchievementManager
@@ -1086,17 +1101,23 @@ class Program
         {
             StartQuickDeliveryForLetters();
         }
+
+        //StartQuickDeliveryForLetters();
     }
 
+    // function to write code
     static void ExecuteCode()
     {
+        string fullCode = string.Join("\n", codeEditor.Lines) +
+                                 (string.IsNullOrEmpty(codeEditor.CurrentInput) ? "" : "\n" + codeEditor.CurrentInput);
+
         if (!string.IsNullOrWhiteSpace(codeEditor.CurrentInput))
         {
             codeEditor.Lines.Add(codeEditor.CurrentInput);
             codeEditor.CurrentInput = "";
         }
         
-        if (codeEditor.Lines.Count > 0)
+        if (fullCode.Length > 0)
         {
             outputWindow.OutputText = CodeInterpreter.ExecuteCode(codeEditor.Lines);
             outputWindow.IsVisible = true;
