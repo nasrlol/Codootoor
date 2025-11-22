@@ -1,4 +1,4 @@
-﻿using Raylib_cs;
+using Raylib_cs;
 using static Raylib_cs.Raylib;
 using System;
 using static System.Console;
@@ -8,9 +8,6 @@ using System.Linq;
 using System.IO;
 
 namespace Odootoor;
-
-using static Odootoor.UIButton;
-using static Odootoor.VolumeSlider;
 
 enum GameState { Editing, Delivering, Returning, Success, QuickDelivery, Falling }
 
@@ -22,6 +19,7 @@ public partial class Program
     static int screenHeight = 900;
     const int CODE_EDITOR_WIDTH_PERCENT = 70;
     const int CODE_EDITOR_HEIGHT_PERCENT = 85;
+
 
     static AchievementManager achievementManager = new AchievementManager();
     static Stickman stickman;
@@ -79,13 +77,6 @@ public partial class Program
             quickDeliveryActive = false;
         }
     }
-
-    static void UpdateEditingState(Vector2 mousePos)
-    {
-    }
-
-    // function to write code
-
 
     static void StartQuickDeliveryForLetters()
     {
@@ -150,6 +141,12 @@ public partial class Program
         saveButton = new UIButton(CalculateSaveButton(), "Save Code");
         volumeSlider = new VolumeSlider(CalculateVolumeSlider(), CalculateVolumeSliderActual());
 
+        Texture2D atlasPunch = LoadTexture("assets/Punch-Sheet.png");
+        Texture2D atlasRun = LoadTexture("assets/Run-Sheet.png");
+        var punchFrames = new Frames(atlasPunch, 64, 64, 10, 6);
+        var runFrames = new Frames(atlasRun, 64, 64, 9, 2);
+        var manPos = new Vector2(screenWidth / 2, screenHeight / 2);
+
         while (!WindowShouldClose())
         {
             if (IsWindowResized())
@@ -177,6 +174,8 @@ public partial class Program
 
             // Update();
             {
+
+
                 Vector2 mousePos = GetMousePosition();
 
                 // Handle ESC for panels
@@ -282,6 +281,10 @@ public partial class Program
 
                 UpdateStickman();
                 achievementManager.UpdateAchievementDisplays();
+
+                // Update run animation
+                Frames.UpdateIndex(runFrames);
+                runFrames.prevIndex = runFrames.index;
             }
 
             // Draw()
@@ -338,6 +341,17 @@ public partial class Program
                 tipsWindow.Draw();
                 achievementManager.DrawAchievementsPanel(screenWidth, screenHeight);
                 achievementManager.DrawAchievementNotifications(screenWidth, screenHeight);
+
+
+                var facing = 1;
+                var size = 3f;
+                var source = new Rectangle(runFrames.index * runFrames.width, 0, runFrames.width, runFrames.height);
+                var dest = new Rectangle(manPos.X, manPos.Y, runFrames.width, runFrames.height);
+                source.Width *= -facing;
+                dest.Width *= size;
+                dest.Height *= size;
+                DrawTexturePro(runFrames.atlas, source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f), 0, Color.Blue);
+
 
                 EndDrawing();
             }

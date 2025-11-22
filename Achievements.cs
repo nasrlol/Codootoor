@@ -29,6 +29,7 @@ class Achievement
 
 class AchievementManager
 {
+    public bool DEBUGDisableAchivementNotifications = true;
     public List<Achievement> Achievements = new List<Achievement>();
     public bool ShowAchievementsPanel;
     public float AchievementsScrollOffset;
@@ -39,11 +40,6 @@ class AchievementManager
     public int quickDeliveries = 0;
 
     public AchievementManager()
-    {
-        InitializeAchievements();
-    }
-
-    public void InitializeAchievements()
     {
         Achievements.Add(new Achievement("First Letter", "Type your first letter", () => hasTypedFirstLetter));
         Achievements.Add(new Achievement("Code Novice", "Write 50 lines of code", () => totalLinesWritten >= 50));
@@ -182,27 +178,30 @@ class AchievementManager
 
     public void DrawAchievementNotifications(int screenWidth, int screenHeight)
     {
-        foreach (var achievement in Achievements)
+        if (!DEBUGDisableAchivementNotifications)
         {
-            if (achievement.DisplayTime > 0)
+            foreach (var achievement in Achievements)
             {
-                float alpha = Math.Clamp(achievement.DisplayTime / 1.0f, 0f, 1f);
-                Color bgColor = new Color(40, 80, 40, (int)(220 * alpha));
-                Color borderColor = new Color(120, 200, 120, (int)(255 * alpha));
-                Color textColor = new Color(255, 255, 255, (int)(255 * alpha));
-                Color goldColor = new Color(255, 215, 0, (int)(255 * alpha));
+                if (achievement.DisplayTime > 0)
+                {
+                    float alpha = Math.Clamp(achievement.DisplayTime / 1.0f, 0f, 1f);
+                    Color bgColor = new Color(40, 80, 40, (int)(220 * alpha));
+                    Color borderColor = new Color(120, 200, 120, (int)(255 * alpha));
+                    Color textColor = new Color(255, 255, 255, (int)(255 * alpha));
+                    Color goldColor = new Color(255, 215, 0, (int)(255 * alpha));
 
-                int centerX = screenWidth / 2;
-                int centerY = screenHeight / 3;
+                    int centerX = screenWidth / 2;
+                    int centerY = screenHeight / 3;
 
-                // Notification background with shadow
-                DrawRectangle(centerX - 210, centerY - 70, 420, 140, new Color(0, 0, 0, (int)(100 * alpha)));
-                DrawRectangle(centerX - 200, centerY - 60, 400, 120, bgColor);
-                DrawRectangleLines(centerX - 200, centerY - 60, 400, 120, borderColor);
+                    // Notification background with shadow
+                    DrawRectangle(centerX - 210, centerY - 70, 420, 140, new Color(0, 0, 0, (int)(100 * alpha)));
+                    DrawRectangle(centerX - 200, centerY - 60, 400, 120, bgColor);
+                    DrawRectangleLines(centerX - 200, centerY - 60, 400, 120, borderColor);
 
-                DrawText("ACHIEVEMENT UNLOCKED!", centerX - 120, centerY - 35, 22, goldColor);
-                DrawText(achievement.Name, centerX - 120, centerY - 5, 28, textColor);
-                DrawText(achievement.Description, centerX - 120, centerY + 25, 18, textColor);
+                    DrawText("ACHIEVEMENT UNLOCKED!", centerX - 120, centerY - 35, 22, goldColor);
+                    DrawText(achievement.Name, centerX - 120, centerY - 5, 28, textColor);
+                    DrawText(achievement.Description, centerX - 120, centerY + 25, 18, textColor);
+                }
             }
         }
     }
