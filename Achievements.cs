@@ -189,7 +189,7 @@ class AchievementManager
     
     public void DrawAchievementNotifications(int screenWidth, int screenHeight)
     {
-        foreach (var achievement in Achievements)
+        if (!DEBUGDisableAchivementNotifications)
         {
             if (achievement.DisplayTime > 0)
             {

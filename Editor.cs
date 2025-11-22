@@ -37,14 +37,6 @@ public partial class Program
 
     public const int LINE_HEIGHT = 25;
 
-    public static void HandleInput()
-    {
-        HandleArrowNavigation();
-        ProcessControlKeys();
-        ProcessCharacterInput();
-        UpdateKeyRepeatTiming();
-    }
-
     private static void ProcessControlKeys()
     {
         // Handle backspace

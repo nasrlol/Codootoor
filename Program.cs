@@ -1,4 +1,4 @@
-﻿﻿using Raylib_cs;
+using Raylib_cs;
 using static Raylib_cs.Raylib;
 
 using System;
@@ -13,6 +13,8 @@ enum GameState { Editing, Delivering, Returning, Success, QuickDelivery, Falling
 
 public partial class Program
 {
+    const bool DEBUGDisableDeliveries = true;
+
     static int screenWidth = 1400;
     static int screenHeight = 900;
     const int CODE_EDITOR_WIDTH_PERCENT = 70;
@@ -78,8 +80,12 @@ public partial class Program
         tipsButton = new UIButton(CalculateTipsButton(), "Tips");
         saveButton = new UIButton(CalculateSaveButton(), "Save Code");
         volumeSlider = new VolumeSlider(CalculateVolumeSlider(), CalculateVolumeSliderActual());
-        themeToggle = new ThemeToggle(CalculateThemeToggle());
-    }
+
+        Texture2D atlasPunch = LoadTexture("assets/Punch-Sheet.png");
+        Texture2D atlasRun = LoadTexture("assets/Run-Sheet.png");
+        var punchFrames = new Frames(atlasPunch, 64, 64, 10, 6);
+        var runFrames = new Frames(atlasRun, 64, 64, 9, 2);
+        var manPos = new Vector2(screenWidth / 2, screenHeight / 2);
 
     static void UpdateComponentPositions()
     {
