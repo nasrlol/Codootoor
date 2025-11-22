@@ -27,8 +27,8 @@ public partial class Program
     static UIButton tipsButton;
     static UIButton saveButton;
     static VolumeSlider volumeSlider;
-    static OutputWindow outputWindow = new OutputWindow();
-    static TipsWindow tipsWindow = new TipsWindow();
+    static OutputWindow outputWindow = new();
+    static TipsWindow tipsWindow = new();
 
     static Random rand = new Random();
     static bool quickDeliveryActive = false;
@@ -139,8 +139,10 @@ public partial class Program
                     }
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
-			outputWindow.IsVisible = !outputWindow.IsVisible;
-                        ExecuteCode(editor.Lines);
+			            outputWindow.IsVisible = !outputWindow.IsVisible;
+                        outputWindow.piper.Run("print(3)");
+                        outputWindow.OutputText = "";
+                        outputWindow.Draw();
                     }
                     else if (StickmanOver(stickmanPos, saveButton.Bounds))
                     {

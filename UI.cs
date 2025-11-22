@@ -12,12 +12,12 @@ using System.IO;
 class ThemeToggle
 {
     public Rectangle Bounds { get; set; }
-    
+
     public ThemeToggle(Rectangle bounds)
     {
         Bounds = bounds;
     }
-    
+
     public void Update()
     {
         Vector2 mousePos = Raylib.GetMousePosition();
@@ -29,20 +29,20 @@ class ThemeToggle
             }
         }
     }
-    
+
     public void Draw()
     {
         // Toggle background
         Color bgColor = ThemeManager.IsLightMode ? new Color(200, 200, 220, 255) : new Color(50, 50, 70, 255);
         Raylib.DrawRectangleRec(Bounds, bgColor);
         Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, ThemeManager.GetBorderColor());
-        
+
         // Toggle knob
         int knobSize = (int)Bounds.Height - 8;
         int knobX = ThemeManager.IsLightMode ? (int)(Bounds.X + Bounds.Width - knobSize - 4) : (int)(Bounds.X + 4);
-        
+
         Raylib.DrawRectangle(knobX, (int)Bounds.Y + 4, knobSize, knobSize, ThemeManager.GetAccentColor());
-        
+
         // Labels
         Raylib.DrawText("THEME", (int)Bounds.X, (int)Bounds.Y - 25, 20, ThemeManager.GetTextColor());
         Raylib.DrawText("D", (int)Bounds.X + 5, (int)Bounds.Y + 7, 18, Color.White);
@@ -58,7 +58,7 @@ class UIButton
     public Color TextColor { get; set; } = Color.White;
     public Color BorderColor { get; set; } = new Color(120, 150, 200, 255);
     public bool HasShadow { get; set; } = true;
-    
+
     public UIButton(Rectangle bounds, string text)
     {
         Bounds = bounds;
@@ -73,10 +73,10 @@ class UIButton
         {
             Raylib.DrawRectangle((int)Bounds.X + 3, (int)Bounds.Y + 3, (int)Bounds.Width, (int)Bounds.Height, new Color(0, 0, 0, 100));
         }
-        
+
         Raylib.DrawRectangleRec(Bounds, color);
         Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, BorderColor);
-        
+
         int textWidth = Raylib.MeasureText(Text, 20);
         int textX = (int)Bounds.X + ((int)Bounds.Width - textWidth) / 2;
         DrawText(Text, textX, (int)Bounds.Y + 12, 20, TextColor);
@@ -92,13 +92,13 @@ class VolumeSlider
     public Rectangle VisualBounds { get; set; }
     public Rectangle ActualBounds { get; set; }
     public float Volume { get; set; } = 0.5f;
-    
+
     public VolumeSlider(Rectangle visualBounds, Rectangle actualBounds)
     {
         VisualBounds = visualBounds;
         ActualBounds = actualBounds;
     }
-    
+
     public void Update()
     {
         Vector2 mousePos = Raylib.GetMousePosition();
@@ -107,7 +107,7 @@ class VolumeSlider
             float relativeY = mousePos.Y - ActualBounds.Y;
             Volume = Math.Clamp(1.0f - (relativeY / ActualBounds.Height), 0f, 1f);
             Raylib.SetMasterVolume(Volume);
-            
+
             // Update muziek volume als het geladen is
             if (MusicManager.isLoaded)
             {
@@ -115,25 +115,25 @@ class VolumeSlider
             }
         }
     }
-    
+
     public void Draw()
     {
         Raylib.DrawRectangleRec(VisualBounds, new Color(50, 50, 70, 255));
         Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y, 
-                                (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
-        
+                (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
+
         float fillHeight = VisualBounds.Height * Volume;
         Color fillColor = new Color(50, 200, 50, 255);
-        
+
         Raylib.DrawRectangle((int)VisualBounds.X, (int)(VisualBounds.Y + VisualBounds.Height - fillHeight), 
-                           (int)VisualBounds.Width, (int)fillHeight, fillColor);
-        
+                (int)VisualBounds.Width, (int)fillHeight, fillColor);
+
         float markerY = VisualBounds.Y + VisualBounds.Height - fillHeight;
         Raylib.DrawRectangle((int)VisualBounds.X - 5, (int)markerY - 2, (int)VisualBounds.Width + 10, 4, Color.White);
-        
+
         Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
         Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
-                      (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
+                (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
     }
 }
 
@@ -148,7 +148,7 @@ class FileManager
             {
                 Directory.CreateDirectory(directory);
             }
-            
+
             string filePath = Path.Combine(directory, filename);
             File.WriteAllLines(filePath, lines);
             return true;
@@ -184,13 +184,15 @@ class OutputWindow
     public string OutputText { get; set; } = "";
     public Rectangle Bounds { get; set; }
     public float ScrollOffset { get; set; }
-    
+    public Program.Piper piper;
+
     public OutputWindow()
     {
+        piper = new();
         IsVisible = false;
         Bounds = new Rectangle(200, 100, 800, 500);
     }
-    
+
     public void HandleScroll(Vector2 mousePos)
     {
         if (IsVisible && Raylib.CheckCollisionPointRec(mousePos, Bounds))
@@ -200,51 +202,59 @@ class OutputWindow
             ScrollOffset = Math.Clamp(ScrollOffset, 0, Math.Max(0, CountLines() * 20 - Bounds.Height + 40));
         }
     }
-    
+
     private int CountLines()
     {
         return OutputText.Split('\n').Length;
     }
-    
+
     public void Draw()
     {
         if (!IsVisible) return;
-        
+
         Raylib.DrawRectangleRec(Bounds, ThemeManager.GetPanelBackground());
         Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, ThemeManager.GetAccentColor());
         Raylib.DrawRectangleLines((int)Bounds.X - 1, (int)Bounds.Y - 1, (int)Bounds.Width + 2, (int)Bounds.Height + 2, ThemeManager.GetLightAccentColor());
-        
+
         Raylib.DrawRectangle((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, 30, ThemeManager.GetHeaderColor());
         Raylib.DrawText("PROGRAM OUTPUT", (int)Bounds.X + 10, (int)Bounds.Y + 5, 20, Color.Gold);
-        
+
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
         Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
         Raylib.DrawRectangleRec(closeButton, closeColor);
         Raylib.DrawText("X", (int)closeButton.X + 6, (int)closeButton.Y + 2, 16, Color.White);
-        
+
         string[] lines = OutputText.Split('\n');
         int visibleLines = (int)((Bounds.Height - 40) / 20);
         int startLine = (int)(ScrollOffset / 20);
-        
+
         for (int i = startLine; i < Math.Min(startLine + visibleLines + 1, lines.Length); i++)
         {
             float yPos = Bounds.Y + 40 + (i - startLine) * 20 - (ScrollOffset % 20);
             Raylib.DrawText(lines[i], (int)Bounds.X + 10, (int)yPos, 16, ThemeManager.GetTextColor());
         }
-        
+
         if (CountLines() * 20 > Bounds.Height - 40)
         {
             float scrollbarHeight = (Bounds.Height - 40) * ((Bounds.Height - 40) / (CountLines() * 20));
             float scrollbarY = Bounds.Y + 40 + (ScrollOffset / (CountLines() * 20)) * (Bounds.Height - 40 - scrollbarHeight);
-            
+
             Raylib.DrawRectangle((int)Bounds.X + (int)Bounds.Width - 12, (int)scrollbarY, 8, (int)scrollbarHeight, ThemeManager.GetScrollbarColor());
         }
+
+        piper.Draw(Bounds);
+
+        lock (piper.OutputBuffer)
+        {
+            OutputText = string.Join("\n", piper.OutputBuffer);
+        }
     }
-    
+
     public bool CloseButtonClicked()
     {
         if (!IsVisible) return false;
-        
+
+
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
         return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
     }
@@ -254,7 +264,7 @@ class TipsWindow
 {
     public bool IsVisible { get; set; }
     public Rectangle Bounds { get; set; }
-    
+
     private List<string> tips = new List<string>
     {
         "Type letters to trigger quick deliveries",
@@ -266,38 +276,38 @@ class TipsWindow
         "More lines = more coding experience",
         "Quick deliveries help practice typing"
     };
-    
+
     public TipsWindow()
     {
         IsVisible = false;
         Bounds = new Rectangle(300, 150, 600, 400);
     }
-    
+
     public void Draw()
     {
         if (!IsVisible) return;
-        
+
         Raylib.DrawRectangleRec(Bounds, ThemeManager.GetPanelBackground());
         Raylib.DrawRectangleLines((int)Bounds.X, (int)Bounds.Y, (int)Bounds.Width, (int)Bounds.Height, ThemeManager.GetAccentColor());
-        
+
         Raylib.DrawText("CODING TIPS", (int)Bounds.X + 220, (int)Bounds.Y + 20, 28, Color.Gold);
         Raylib.DrawLine((int)Bounds.X + 50, (int)Bounds.Y + 60, (int)Bounds.X + 550, (int)Bounds.Y + 60, ThemeManager.GetAccentColor());
-        
+
         for (int i = 0; i < tips.Count; i++)
         {
             Raylib.DrawText(tips[i], (int)Bounds.X + 50, (int)Bounds.Y + 80 + i * 40, 18, ThemeManager.GetTextColor());
         }
-        
+
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
         Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
         Raylib.DrawRectangleRec(closeButton, closeColor);
         Raylib.DrawText("X", (int)closeButton.X + 6, (int)closeButton.Y + 2, 16, Color.White);
     }
-    
+
     public bool CloseButtonClicked()
     {
         if (!IsVisible) return false;
-        
+
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
         return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
     }
@@ -309,19 +319,19 @@ class EnvironmentRenderer
     {
         int x = (int)position.X;
         int y = (int)position.Y;
-        
+
         Raylib.DrawRectangle(x - 55, y + 5, 110, 80, new Color(0, 0, 0, 100));
-        
+
         Raylib.DrawRectangle(x - 60, y, 120, 80, new Color(120, 80, 40, 255));
         Raylib.DrawTriangle(new Vector2(x - 70, y), new Vector2(x + 70, y), new Vector2(x, y - 60), new Color(140, 40, 40, 255));
-        
+
         Raylib.DrawRectangle(x - 15, y + 20, 30, 60, new Color(80, 50, 20, 255));
         Raylib.DrawCircle(x, y + 50, 3, Color.Gold);
-        
+
         DrawWindow(x - 45, y + 15);
         DrawWindow(x + 20, y + 15);
     }
-    
+
     private static void DrawWindow(int x, int y)
     {
         Raylib.DrawRectangle(x, y, 25, 25, new Color(135, 206, 235, 200));
@@ -329,7 +339,7 @@ class EnvironmentRenderer
         Raylib.DrawLine(x + 12, y, x + 12, y + 25, Color.Black);
         Raylib.DrawLine(x, y + 12, x + 25, y + 12, Color.Black);
     }
-    
+
     public static void DrawWaterWaves(Rectangle editor)
     {
         int startY = (int)editor.Y + (int)editor.Height - 10;
@@ -344,12 +354,12 @@ class EnvironmentRenderer
             }
         }
     }
-    
+
     public static void DrawSplashEffect(Vector2 position, float progress)
     {
         int splashSize = (int)(20 * progress);
         Color splashColor = new Color(255, 255, 255, (int)(150 * (1.0f - progress)));
-        
+
         Raylib.DrawCircle((int)position.X, (int)position.Y, splashSize, splashColor);
         Raylib.DrawCircle((int)position.X - 10, (int)position.Y, splashSize - 5, splashColor);
         Raylib.DrawCircle((int)position.X + 10, (int)position.Y, splashSize - 5, splashColor);
@@ -361,7 +371,7 @@ class ThemeManager
     public static bool IsLightMode { get; private set; } = false;
     public static int ConfirmationLevel { get; private set; } = 0;
     public static bool ShowThemePopup { get; set; } = false;
-    
+
     private static float transitionProgress = 0f;
     private static bool isTransitioning = false;
 
@@ -384,7 +394,7 @@ class ThemeManager
         {
             ConfirmationLevel++;
             ShowThemePopup = true;
-            
+
             if (ConfirmationLevel >= 3)
             {
                 isTransitioning = true;
@@ -494,7 +504,7 @@ class ThemeManager
 
         // Donker overlay
         Raylib.DrawRectangle(0, 0, screenWidth, screenHeight, new Color(0, 0, 0, 180));
-        
+
         // Popup background
         int popupWidth = 600;
         int popupHeight = 300;
@@ -514,7 +524,7 @@ class ThemeManager
         // Yes button
         Rectangle yesButton = new Rectangle(popupX + 150, popupY + 200, 150, 50);
         bool yesHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), yesButton);
-        
+
         Raylib.DrawRectangleRec(yesButton, yesHover ? new Color(100, 200, 100, 255) : new Color(60, 160, 60, 255));
         Raylib.DrawRectangleLines((int)yesButton.X, (int)yesButton.Y, (int)yesButton.Width, (int)yesButton.Height, new Color(120, 220, 120, 255));
         Raylib.DrawText(buttonTexts[currentMessage], (int)yesButton.X + 10, (int)yesButton.Y + 15, 16, Color.White);
@@ -522,7 +532,7 @@ class ThemeManager
         // No button
         Rectangle noButton = new Rectangle(popupX + 320, popupY + 200, 150, 50);
         bool noHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), noButton);
-        
+
         Raylib.DrawRectangleRec(noButton, noHover ? new Color(200, 100, 100, 255) : new Color(160, 60, 60, 255));
         Raylib.DrawRectangleLines((int)noButton.X, (int)noButton.Y, (int)noButton.Width, (int)noButton.Height, new Color(220, 120, 120, 255));
         Raylib.DrawText("NO, SAVE ME!", (int)noButton.X + 25, (int)noButton.Y + 15, 16, Color.White);
@@ -548,11 +558,11 @@ public partial class Program
     static Rectangle CalculateCodeEditor()
     {
         return new Rectangle(
-            screenWidth * 0.02f,
-            screenHeight * 0.12f,
-            screenWidth * (CODE_EDITOR_WIDTH_PERCENT / 100f),
-            screenHeight * (CODE_EDITOR_HEIGHT_PERCENT / 100f)
-        );
+                screenWidth * 0.02f,
+                screenHeight * 0.12f,
+                screenWidth * (CODE_EDITOR_WIDTH_PERCENT / 100f),
+                screenHeight * (CODE_EDITOR_HEIGHT_PERCENT / 100f)
+                );
     }
 
     static Vector2 CalculateCodeEditorPosition()
@@ -563,81 +573,81 @@ public partial class Program
     static Rectangle CalculateExecuteButton()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.15f,
-            180,
-            40
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.15f,
+                180,
+                40
+                );
     }
 
     static Rectangle CalculateAchievementsButton()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.22f,
-            180,
-            40
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.22f,
+                180,
+                40
+                );
     }
 
     static Rectangle CalculateClearButton()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.29f,
-            180,
-            40
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.29f,
+                180,
+                40
+                );
     }
 
     static Rectangle CalculateTipsButton()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.36f,
-            180,
-            40
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.36f,
+                180,
+                40
+                );
     }
 
     static Rectangle CalculateSaveButton()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.43f,
-            180,
-            40
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.43f,
+                180,
+                40
+                );
     }
 
     static Rectangle CalculateVolumeSlider()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.57f,
-            200,
-            20
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.57f,
+                200,
+                20
+                );
     }
 
     static Rectangle CalculateVolumeSliderActual()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.56f,
-            200,
-            30
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.56f,
+                200,
+                30
+                );
     }
 
     static Rectangle CalculateThemeToggle()
     {
         return new Rectangle(
-            screenWidth * 0.75f,
-            screenHeight * 0.65f,
-            80,
-            30
-        );
+                screenWidth * 0.75f,
+                screenHeight * 0.65f,
+                80,
+                30
+                );
     }
 
     static Vector2 CalculateHousePosition()
