@@ -1,6 +1,5 @@
 ﻿using Raylib_cs;
 using static Raylib_cs.Raylib;
-
 using System;
 using static System.Console;
 using System.Collections.Generic;
