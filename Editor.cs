@@ -349,9 +349,24 @@ private static void DrawCurrentInput()
 
 private static void HandleEnter()
 {
-    // Altijd naar nieuwe regel gaan, zelfs als huidige input leeg is
-    editor.Lines.Add(editor.CurrentInput);
-    editor.CurrentInput = "";
+    if (cursorPosition == editor.CurrentInput.Length)
+    {
+        // Cursor staat aan het einde - voeg gewoon nieuwe regel toe
+        editor.Lines.Add(editor.CurrentInput);
+        editor.CurrentInput = "";
+    }
+    else
+    {
+        // Cursor staat ergens in het midden - splits de tekst
+        string textBeforeCursor = editor.CurrentInput.Substring(0, cursorPosition);
+        string textAfterCursor = editor.CurrentInput.Substring(cursorPosition);
+        
+        // Huidige regel wordt tekst voor cursor
+        editor.Lines.Add(textBeforeCursor);
+        // Nieuwe regel wordt tekst na cursor
+        editor.CurrentInput = textAfterCursor;
+    }
+    
     cursorPosition = 0;
     editor.CurrentLine = editor.Lines.Count;
     editor.ScrollOffset = Math.Max(0, (editor.Lines.Count) * LINE_HEIGHT - editor.Bounds.Height + LINE_HEIGHT);

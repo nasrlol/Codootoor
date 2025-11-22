@@ -69,7 +69,7 @@ public partial class Program
         var punchFrames = new Frames(atlasPunch, 64, 64, 10, 3f);
         var runFrames = new Frames(atlasRun, 64, 64, 9, 4);
         var idleFrames = new Frames(atlasIdle, 64, 64, 6, 4);
-        var stickmanPos = new Vector2(screenWidth / 2, screenHeight / 2);
+        var stickmanPos = new Vector2(1200, 780);
 
         var stickmanSize = 3f;
         while (!WindowShouldClose())
@@ -139,6 +139,7 @@ public partial class Program
                     }
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
+			outputWindow.IsVisible = !outputWindow.IsVisible;
                         ExecuteCode(editor.Lines);
                     }
                     else if (StickmanOver(stickmanPos, saveButton.Bounds))
@@ -175,7 +176,7 @@ public partial class Program
                     }
                 }
 
-                if (IsKeyPressed(KeyboardKey.LeftShift))
+                if (IsKeyPressed(KeyboardKey.LeftAlt) || IsKeyPressed(KeyboardKey.RightAlt))
                 {
                     currentState = ((currentState == GameState.Moving) ? GameState.Editing : GameState.Moving);
                 }
@@ -345,7 +346,7 @@ public partial class Program
                                      source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
                                                                             0, Color.Blue);
 
-                DrawText(string.Format("{0} {1}", stickmanIsPunching, stickmanFrames.index), 20, 300, 20, Color.SkyBlue);
+                DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
 
 
                 EndDrawing();
