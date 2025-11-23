@@ -54,29 +54,32 @@ class AchievementManager
     }
 
     public void CheckAchievements(string inputText, int linesWritten)
+{
+    totalLinesWritten = linesWritten;
+
+    if (!hasTypedFirstLetter && !string.IsNullOrEmpty(inputText) && inputText.Any(char.IsLetter))
     {
-        totalLinesWritten = linesWritten;
-
-        if (!hasTypedFirstLetter && !string.IsNullOrEmpty(inputText) && inputText.Any(char.IsLetter))
-        {
-            hasTypedFirstLetter = true;
-        }
-
-        foreach (var achievement in Achievements)
-        {
-            if (!achievement.IsUnlocked && achievement.CheckCondition())
-            {
-                achievement.IsUnlocked = true;
-                achievement.DisplayTime = 3.0f;
-            }
-        }
+        hasTypedFirstLetter = true;
     }
 
-    public void MarkProgramExecuted()
+    foreach (var achievement in Achievements)
     {
-        programsExecuted++;
-        CheckAchievements("", totalLinesWritten);
+        if (!achievement.IsUnlocked && achievement.CheckCondition())
+        {
+            achievement.IsUnlocked = true;
+            achievement.DisplayTime = 3.0f;
+            
+            // Speel achievement sound
+            MusicManager.PlayAchievementSound();
+        }
     }
+}
+
+public void MarkProgramExecuted()
+{
+    programsExecuted++;
+    CheckAchievements("", totalLinesWritten);
+}
 
     public void UpdateAchievementDisplays()
     {

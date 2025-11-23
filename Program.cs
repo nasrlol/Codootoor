@@ -58,6 +58,9 @@ public partial class Program
         SetTargetFPS(60);
         SetExitKey(KeyboardKey.Null);
 
+        MusicManager.Initialize();
+        MusicManager.LoadMusic();
+
         // InitializeComponents();
         editor = new Editor(CalculateCodeEditor(), CalculateCodeEditorPosition());
         executeButton = new UIButton(CalculateExecuteButton(), "Execute Code");
@@ -82,6 +85,7 @@ public partial class Program
             bool stickmanMoved = false;
             Frames stickmanFrames = null;
             float runSpeed = 12f;
+            MusicManager.Update();
 
             if (IsWindowResized())
             {
@@ -397,6 +401,7 @@ public partial class Program
         } // shouldClose
 
         CloseWindow();
+        MusicManager.Stop();
     }
 
 }
