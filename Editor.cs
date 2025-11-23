@@ -260,7 +260,8 @@ public partial class Program
             {
                 // Find the start of previous line
                 int prevLineEnd = currentLineStart - 1;
-                int prevLineStart = editor.Text.LastIndexOf('\n', prevLineEnd - 1) + 1;
+
+                int prevLineStart = editor.Text.LastIndexOf('\n', prevLineEnd);
 
                 // Calculate cursor position in previous line
                 int cursorOffset = cursorPosition - currentLineStart;
