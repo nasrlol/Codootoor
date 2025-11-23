@@ -242,7 +242,6 @@ class OutputWindow
             Raylib.DrawRectangle((int)Bounds.X + (int)Bounds.Width - 12, (int)scrollbarY, 8, (int)scrollbarHeight, ThemeManager.GetScrollbarColor());
         }
 
-        piper.Draw(Bounds);
 
         lock (piper.OutputBuffer)
         {
@@ -253,7 +252,6 @@ class OutputWindow
     public bool CloseButtonClicked()
     {
         if (!IsVisible) return false;
-
 
         Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
         return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);

@@ -126,7 +126,6 @@ public partial class Program
                     if (StickmanOver(stickmanPos, achievementsButton.Bounds))
                     {
                         achievementManager.ShowAchievementsPanel = !achievementManager.ShowAchievementsPanel;
-                        Console.WriteLine("Achievements button clicked!"); // Debug line
                     }
                     else if (StickmanOver(stickmanPos, clearButton.Bounds))
                     {
@@ -139,10 +138,20 @@ public partial class Program
                     }
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
-			            outputWindow.IsVisible = !outputWindow.IsVisible;
-                        outputWindow.piper.Run(ToBuffer(editor.Lines));
-                        outputWindow.OutputText = "";
-                        outputWindow.Draw();
+                        if (outputWindow.IsVisible == true)
+                        {
+                            outputWindow.IsVisible = false;
+                            outputWindow.piper.Stop();
+                            lock (outputWindow.piper.OutputBuffer)
+                            {
+                                outputWindow.piper.OutputBuffer.Clear();  
+                            }
+                        } else {
+                            outputWindow.IsVisible = true;
+                            outputWindow.piper.Run(ToBuffer(editor.Lines));
+                            outputWindow.OutputText = "";
+                        }
+
                     }
                     else if (StickmanOver(stickmanPos, saveButton.Bounds))
                     {
@@ -153,6 +162,7 @@ public partial class Program
                 // Close buttons for windows
                 if (outputWindow.CloseButtonClicked())
                 {
+
                     outputWindow.IsVisible = false;
                 }
 
@@ -165,14 +175,14 @@ public partial class Program
                 if (achievementManager.ShowAchievementsPanel && IsMouseButtonPressed(MouseButton.Left))
                 {
                     Rectangle achievementsPanel = new Rectangle(
-                                    (screenWidth - 500) / 2,
-                                    (screenHeight - 600) / 2,
-                                    500,
-                                    600
-                    );
+                            (screenWidth - 500) / 2,
+                            (screenHeight - 600) / 2,
+                            500,
+                            600
+                            );
 
                     if (!CheckCollisionPointRec(mousePos, achievementsPanel) &&
-                                    !CheckCollisionPointRec(mousePos, achievementsButton.Bounds))
+                            !CheckCollisionPointRec(mousePos, achievementsButton.Bounds))
                     {
                         achievementManager.ShowAchievementsPanel = false;
                     }
@@ -345,8 +355,8 @@ public partial class Program
                 dest.Width *= stickmanSize;
                 dest.Height *= stickmanSize;
                 DrawTexturePro(stickmanFrames.atlas,
-                                     source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
-                                                                            0, Color.Blue);
+                        source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
+                        0, Color.Blue);
 
                 // DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
 
