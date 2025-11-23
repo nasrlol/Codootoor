@@ -4,6 +4,9 @@ using System.Numerics;
 
 namespace Odootoor;
 
+// TODO(luca): panels should be all the same code
+// TODO(luca): close buttons should be queryable so you can see if you intersect them
+
 public partial class Program
 {
     class ThemeToggle
@@ -42,8 +45,8 @@ public partial class Program
 
             // Labels
             DrawTextEx(regular_font, "THEME", new Vector2((int)Bounds.X, (int)Bounds.Y - 25), 20, 0, ThemeManager.GetTextColor());
-            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 5, (int)Bounds.Y + 7), 18, 0, Color.White);
-            DrawTextEx(regular_font, "L", new Vector2((int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7), 18, 0, Color.Black);
+            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 5, (int)Bounds.Y + 7), codeFontSize, 0, Color.White);
+            DrawTextEx(regular_font, "L", new Vector2((int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7), codeFontSize, 0, Color.Black);
 
         }
 
@@ -225,7 +228,7 @@ public partial class Program
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
             Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
-            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X, (int)closeButton.Y + 2), font_size, spacing, Color.White);
+            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 4, (int)closeButton.Y + 2), codeFontSize, spacing, Color.White);
 
             string[] lines = OutputText.Split('\n');
             int visibleLines = (int)((Bounds.Height - 40) / 20);
@@ -252,13 +255,6 @@ public partial class Program
             }
         }
 
-        public bool CloseButtonClicked()
-        {
-            if (!IsVisible) return false;
-
-            Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
-            return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-        }
     }
 
     class TipsWindow
@@ -296,22 +292,15 @@ public partial class Program
 
             for (int i = 0; i < tips.Count; i++)
             {
-                DrawTextEx(regular_font, tips[i], new Vector2((int)Bounds.X + 50, (int)Bounds.Y + 80 + i * 40), 18, spacing - 3, ThemeManager.GetTextColor());
+                DrawTextEx(regular_font, tips[i], new Vector2((int)Bounds.X + 50, (int)Bounds.Y + 80 + i * 40), codeFontSize, spacing - 3, ThemeManager.GetTextColor());
             }
 
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
             Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
-            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X, (int)closeButton.Y + 2), font_size, 0, Color.White);
+            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 4, (int)closeButton.Y + 2), codeFontSize, 0, Color.White);
         }
 
-        public bool CloseButtonClicked()
-        {
-            if (!IsVisible) return false;
-
-            Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
-            return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-        }
     }
 
     class ThemeManager
