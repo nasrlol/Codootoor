@@ -546,11 +546,6 @@ partial class Program
                             }
                         }
 
-                        if (IsGamepadButtonDown(0, GamepadButton.RightFaceLeft))
-                        {
-				turboMode = 4;
-                        }
-
 			dPos *= turboMode;
                         float leftStickX = GetGamepadAxisMovement(0, GamepadAxis.LeftX);
                         float leftStickY = GetGamepadAxisMovement(0, GamepadAxis.LeftY);
@@ -563,6 +558,12 @@ partial class Program
                         {
                             dPos.Y = leftStickY * runSpeed;
                         }
+
+                        if (IsGamepadButtonDown(0, GamepadButton.RightFaceLeft))
+                        {
+				turboMode = 4;
+                        }
+
                     }
                 }
 
