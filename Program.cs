@@ -78,7 +78,7 @@ public partial class Program
         var stickmanSize = 3f;
         while (!WindowShouldClose())
         {
-	    pressedChar = false;
+            pressedChar = false;
             bool stickmanMoved = false;
             Frames stickmanFrames = null;
             float runSpeed = 12f;
@@ -103,22 +103,7 @@ public partial class Program
 
             // Handle input
             {
-                Vector2 mousePos = GetMousePosition();
-
-                // Handle ESC for panels
-                if (IsKeyPressed(KeyboardKey.Escape))
-                {
-                    achievementManager.ShowAchievementsPanel = false;
-                    outputWindow.IsVisible = false;
-                    tipsWindow.IsVisible = false;
-                }
-
-                // Handle F1 for tips
-                if (IsKeyPressed(KeyboardKey.F1))
-                {
-                    tipsWindow.IsVisible = !tipsWindow.IsVisible;
-                }
-
+                var mousePos = GetMousePosition();
                 volumeSlider.Update();
                 HandleScroll(mousePos);
                 outputWindow.HandleScroll(mousePos);
@@ -149,9 +134,11 @@ public partial class Program
                             outputWindow.piper.Stop();
                             lock (outputWindow.piper.OutputBuffer)
                             {
-                                outputWindow.piper.OutputBuffer.Clear();  
+                                outputWindow.piper.OutputBuffer.Clear();
                             }
-                        } else {
+                        }
+                        else
+                        {
                             outputWindow.IsVisible = true;
                             outputWindow.piper.Run(editor.Text);
                             outputWindow.OutputText = "";
@@ -165,19 +152,27 @@ public partial class Program
                 }
 
                 // Close buttons for windows
-                if (outputWindow.CloseButtonClicked())
+                if (outputWindow.IsVisible)
                 {
 
-                    outputWindow.IsVisible = false;
+                    Rectangle closeButton = new Rectangle(outputWindow.Bounds.X + outputWindow.Bounds.Width - 35, outputWindow.Bounds.Y + 5, 20, 20);
+                    if (stickmanIsPunching && StickmanOver(stickmanPos, closeButton))
+                    {
+                        outputWindow.IsVisible = false;
+                    }
                 }
 
-                if (tipsWindow.CloseButtonClicked())
+                if (tipsWindow.IsVisible)
                 {
-                    tipsWindow.IsVisible = false;
+                    Rectangle closeButton = new Rectangle(tipsWindow.Bounds.X + tipsWindow.Bounds.Width - 35, tipsWindow.Bounds.Y + 15, 20, 20);
+                    if (stickmanIsPunching && StickmanOver(stickmanPos, closeButton))
+                    {
+                        tipsWindow.IsVisible = false;
+                    }
                 }
 
                 // Close achievements panel when clicking outside
-                if (achievementManager.ShowAchievementsPanel && IsMouseButtonPressed(MouseButton.Left))
+                if (achievementManager.ShowAchievementsPanel && stickmanIsPunching)
                 {
                     Rectangle achievementsPanel = new Rectangle(
                             (screenWidth - 500) / 2,
@@ -186,8 +181,8 @@ public partial class Program
                             600
                             );
 
-                    if (!CheckCollisionPointRec(mousePos, achievementsPanel) &&
-                            !CheckCollisionPointRec(mousePos, achievementsButton.Bounds))
+                    if (!StickmanOver(stickmanPos, achievementsPanel) &&
+                       !StickmanOver(stickmanPos, achievementsButton.Bounds))
                     {
                         achievementManager.ShowAchievementsPanel = false;
                     }
@@ -328,7 +323,6 @@ public partial class Program
                 EnvironmentRenderer.DrawHouse(CalculateHousePosition());
 
                 // Draw UI elements
-                var mousePos = GetMousePosition();
                 executeButton.Draw(StickmanOver(stickmanPos, executeButton.Bounds));
                 achievementsButton.Draw(StickmanOver(stickmanPos, achievementsButton.Bounds));
                 clearButton.Draw(StickmanOver(stickmanPos, clearButton.Bounds));
@@ -340,8 +334,8 @@ public partial class Program
                 {
                     Color statusColor = currentState switch
                     {
-                        GameState.Moving => Color.Green,
-                        GameState.Editing => Color.Red,
+                        GameState.Moving => Color.Red,
+                        GameState.Editing => Color.Green,
                         _ => new Color(100, 200, 255, 255)
                     };
 
@@ -360,43 +354,43 @@ public partial class Program
                 dest.Width *= stickmanSize;
                 dest.Height *= stickmanSize;
 
-		if(currentState == GameState.Moving)
-		{
-                DrawTexturePro(stickmanFrames.atlas,
-                        source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
-                        0, Color.Blue);
-		}
+                if (currentState == GameState.Moving)
+                {
+                    DrawTexturePro(stickmanFrames.atlas,
+                            source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
+                            0, Color.Blue);
+                }
 
                 // DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
-	
 
 
-		    if (pressedChar)
-		    {
-			    var punchAnimationFrames = new Frames(atlasPunch, 64, 64, 10, 1f);
-			    punchAnimationFrames.prevTimer = 0;
-			    punchAnimationFrames.timer = 0;
-			    var punchAnimation = new PunchAnimation(punchAnimationFrames, lastCharPos, lastCharString);
-			    punchAnimationsInProgress.Add(punchAnimation);
-		    }
 
-		    for(int animationIndex = 0; animationIndex < punchAnimationsInProgress.Count; animationIndex += 1)
-		    {
-			    var animation = punchAnimationsInProgress[animationIndex];
+                if (pressedChar)
+                {
+                    var punchAnimationFrames = new Frames(atlasPunch, 64, 64, 10, 1f);
+                    punchAnimationFrames.prevTimer = 0;
+                    punchAnimationFrames.timer = 0;
+                    var punchAnimation = new PunchAnimation(punchAnimationFrames, lastCharPos, lastCharString);
+                    punchAnimationsInProgress.Add(punchAnimation);
+                }
 
-			    Frames.UpdateIndex(animation.frames);
-			    DrawCharacterWithPunchAnimation(animation.pos, animation.character, animation.frames);
+                for (int animationIndex = 0; animationIndex < punchAnimationsInProgress.Count; animationIndex += 1)
+                {
+                    var animation = punchAnimationsInProgress[animationIndex];
 
-			    if(animation.frames.done)
-			    {
-				    punchAnimationsInProgress.RemoveAt(animationIndex);
-				    animationIndex--;
-			    }
-			    else
-			    {
-				    animation.frames.timer = animation.frames.prevTimer;
-			    }
-		    }
+                    Frames.UpdateIndex(animation.frames);
+                    DrawCharacterWithPunchAnimation(animation.pos, animation.character, animation.frames);
+
+                    if (animation.frames.done)
+                    {
+                        punchAnimationsInProgress.RemoveAt(animationIndex);
+                        animationIndex--;
+                    }
+                    else
+                    {
+                        animation.frames.timer = animation.frames.prevTimer;
+                    }
+                }
 
                 EndDrawing();
             }

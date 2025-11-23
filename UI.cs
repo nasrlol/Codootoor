@@ -119,20 +119,20 @@ class VolumeSlider
     public void Draw()
     {
         Raylib.DrawRectangleRec(VisualBounds, new Color(50, 50, 70, 255));
-        Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y, 
+        Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y,
                 (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
 
         float fillHeight = VisualBounds.Height * Volume;
         Color fillColor = new Color(50, 200, 50, 255);
 
-        Raylib.DrawRectangle((int)VisualBounds.X, (int)(VisualBounds.Y + VisualBounds.Height - fillHeight), 
+        Raylib.DrawRectangle((int)VisualBounds.X, (int)(VisualBounds.Y + VisualBounds.Height - fillHeight),
                 (int)VisualBounds.Width, (int)fillHeight, fillColor);
 
         float markerY = VisualBounds.Y + VisualBounds.Height - fillHeight;
         Raylib.DrawRectangle((int)VisualBounds.X - 5, (int)markerY - 2, (int)VisualBounds.Width + 10, 4, Color.White);
 
         Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
-        Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
+        Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15,
                 (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
     }
 }
@@ -248,14 +248,6 @@ class OutputWindow
             OutputText = string.Join("\n", piper.OutputBuffer);
         }
     }
-
-    public bool CloseButtonClicked()
-    {
-        if (!IsVisible) return false;
-
-        Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
-        return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-    }
 }
 
 class TipsWindow
@@ -302,13 +294,6 @@ class TipsWindow
         Raylib.DrawText("X", (int)closeButton.X + 6, (int)closeButton.Y + 2, 16, Color.White);
     }
 
-    public bool CloseButtonClicked()
-    {
-        if (!IsVisible) return false;
-
-        Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
-        return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-    }
 }
 
 class EnvironmentRenderer

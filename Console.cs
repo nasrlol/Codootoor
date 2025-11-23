@@ -11,7 +11,7 @@ using Raylib_cs;
 // Simple code interpreter
 public partial class Program
 {
-    public class Piper 
+    public class Piper
     {
         private Process? proc;
         public List<string> OutputBuffer = new();
@@ -38,29 +38,29 @@ public partial class Program
             proc.Start();
 
             proc.StandardInput.WriteLine(codeToExecute);
-            proc.StandardInput.WriteLine(""); 
+            proc.StandardInput.WriteLine("");
             proc.StandardInput.Close();
 
 
             Task.Run(() =>
                     {
-                    while (!proc.StandardOutput.EndOfStream)
-                    {
-                    string line = proc.StandardOutput.ReadLine();
-                    lock (OutputBuffer)
-                    {
-                    OutputBuffer.Add(line);
-                    }
-                    }
+                        while (!proc.StandardOutput.EndOfStream)
+                        {
+                            string line = proc.StandardOutput.ReadLine();
+                            lock (OutputBuffer)
+                            {
+                                OutputBuffer.Add(line);
+                            }
+                        }
 
-                    while (!proc.StandardError.EndOfStream)
-                    {
-                    var line = proc.StandardError.ReadLine();
-                    lock (OutputBuffer)
-                    {
-                    OutputBuffer.Add("Error: " + line);
-                    }
-                    }
+                        while (!proc.StandardError.EndOfStream)
+                        {
+                            var line = proc.StandardError.ReadLine();
+                            lock (OutputBuffer)
+                            {
+                                OutputBuffer.Add("Error: " + line);
+                            }
+                        }
                     });
         }
 

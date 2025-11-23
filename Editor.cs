@@ -21,7 +21,7 @@ public partial class Program
     private static bool isRepeating = false;
     private static int cursorPosition = 0;
 
-    static Vector2 lastCharPos ;
+    static Vector2 lastCharPos;
     static string lastCharString;
 
     public struct Editor
@@ -60,7 +60,7 @@ public partial class Program
             lastHeldKey = KeyboardKey.Backspace;
             keyHoldTimer = 0f;
             isRepeating = false;
-		    pressedChar = true;
+            pressedChar = true;
         }
 
         if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
@@ -69,7 +69,7 @@ public partial class Program
             if (ShouldRepeatKey())
             {
                 HandleBackspace();
-		    pressedChar = true;
+                pressedChar = true;
             }
         }
 
@@ -126,21 +126,21 @@ public partial class Program
         }
     }
 
-private static void HandleDelete()
-{
-    //if (cursorPosition < editor.CurrentInput.Length)
-    //{
-    //    // Verwijder character na cursor
-    //    editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
-    //}
-    //else if (editor.CurrentLine < editor.Lines.Count - 1)
-    //{
-    //    // Delete aan einde van regel - voeg volgende regel samen met huidige
-    //    string nextLine = editor.Lines[editor.CurrentLine + 1];
-    //    editor.CurrentInput += nextLine;
-    //    editor.Lines.RemoveAt(editor.CurrentLine + 1);
-    //}
-}
+    private static void HandleDelete()
+    {
+        //if (cursorPosition < editor.CurrentInput.Length)
+        //{
+        //    // Verwijder character na cursor
+        //    editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
+        //}
+        //else if (editor.CurrentLine < editor.Lines.Count - 1)
+        //{
+        //    // Delete aan einde van regel - voeg volgende regel samen met huidige
+        //    string nextLine = editor.Lines[editor.CurrentLine + 1];
+        //    editor.CurrentInput += nextLine;
+        //    editor.Lines.RemoveAt(editor.CurrentLine + 1);
+        //}
+    }
 
 
     static bool pressedChar;
@@ -148,14 +148,14 @@ private static void HandleDelete()
     private static void ProcessCharacterInput()
     {
         // Simple approach - use GetCharPressed but process only 1 character per frame
-	
+
         int key = GetCharPressed();
         if (key > 0)
         {
-	    pressedChar = true;
+            pressedChar = true;
 
-	    string charString = ((char)key).ToString();
-	    lastCharString = charString;
+            string charString = ((char)key).ToString();
+            lastCharString = charString;
 
             editor.Text = editor.Text.Insert(cursorPosition, charString);
             cursorPosition++;
@@ -446,7 +446,7 @@ private static void HandleDelete()
             // Calculate cursor position
             int cursorX = (int)editor.Bounds.X + 45 + MeasureText(textBeforeCursor, 18);
 
-	    lastCharPos = new Vector2(cursorX, currentInputY);
+            lastCharPos = new Vector2(cursorX, currentInputY);
 
             // Animate cursor
             if ((int)(GetTime() * 2) % 2 == 0)
@@ -522,6 +522,7 @@ private static void HandleDelete()
         {
             statusMessage = "LOL YOU'RE CODE IS GONE";
             ClearEditor();
-        } else return; 
+        }
+        else return;
     }
 }
