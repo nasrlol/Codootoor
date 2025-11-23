@@ -139,7 +139,7 @@ partial class Program
                     }
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
-                        if (outputWindow.IsVisible == true)
+                        if (outputWindow.IsVisible)
                         {
                             outputWindow.IsVisible = false;
                             outputWindow.piper.Stop();
@@ -165,11 +165,15 @@ partial class Program
                 // Close buttons for windows
                 if (outputWindow.IsVisible)
                 {
-
                     Rectangle closeButton = new Rectangle(outputWindow.Bounds.X + outputWindow.Bounds.Width - 35, outputWindow.Bounds.Y + 5, 20, 20);
                     if (stickmanIsPunching && StickmanOver(stickmanPos, closeButton))
                     {
                         outputWindow.IsVisible = false;
+                        outputWindow.piper.Stop();
+                        lock (outputWindow.piper.OutputBuffer)
+                        {
+                            outputWindow.piper.OutputBuffer.Clear();
+                        }
                     }
                 }
 
@@ -193,7 +197,7 @@ partial class Program
                             );
 
                     if (!StickmanOver(stickmanPos, achievementsPanel) &&
-                       !StickmanOver(stickmanPos, achievementsButton.Bounds))
+                            !StickmanOver(stickmanPos, achievementsButton.Bounds))
                     {
                         achievementManager.ShowAchievementsPanel = false;
                     }
@@ -329,9 +333,9 @@ partial class Program
                 DrawEditor();
 
                 /*
-                EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
-                EnvironmentRenderer.DrawHouse(CalculateHousePosition());
-                */
+                   EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
+                   EnvironmentRenderer.DrawHouse(CalculateHousePosition());
+                   */
 
 
 
@@ -419,7 +423,7 @@ partial class Program
 
         CloseWindow();
         MusicManager.Stop();
-    }
 
+    }
 }
 
