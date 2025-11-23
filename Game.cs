@@ -11,13 +11,27 @@ namespace Odootoor;
 
 public partial class Program
 {
-    public static bool DEBUGDrawBoundingBox = true;
+    public static bool DEBUGDrawBoundingBox = false;
 
     public static bool StickmanOver(Vector2 pos, Rectangle bounds)
     {
         bool result = false;
 
-        var handHitbox = new Rectangle(pos.X - 36 * stickmanFacing, pos.Y - 8, 20, 20);
+        float dX;
+        if (stickmanFacing < 0)
+        {
+            dX = +36;
+        }
+        else
+        {
+            dX = -36 * 2;
+        }
+
+        var handHitbox = new Rectangle(pos.X + dX, pos.Y - 8, 80, 20);
+        if (DEBUGDrawBoundingBox)
+        {
+            DrawRectangleRec(handHitbox, Color.Pink);
+        }
         result = CheckCollisionRecs(handHitbox, bounds);
 
         return result;

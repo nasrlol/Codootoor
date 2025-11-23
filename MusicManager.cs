@@ -25,7 +25,7 @@ class MusicManager
             // Probeer verschillende mogelijke locaties
             string[] possiblePaths = {
                 "music/background.mp3",
-                "assets/music/background.mp3", 
+                "assets/music/background.mp3",
                 "background.mp3"
             };
 
