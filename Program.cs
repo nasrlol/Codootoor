@@ -28,6 +28,7 @@ partial class Program
     static AchievementManager achievementManager = new AchievementManager();
     static UIButton executeButton;
     static UIButton achievementsButton;
+    static ThemeToggle themeToggle; // VOEG DIT TOE
     static UIButton clearButton;
     static UIButton tipsButton;
     static UIButton saveButton;
@@ -67,6 +68,8 @@ partial class Program
 
         MusicManager.Initialize();
         MusicManager.LoadMusic();
+        // Voeg deze regel toe bij de andere initializations:
+themeToggle = new ThemeToggle(CalculateThemeToggle());
 
         // InitializeComponents();
         editor = new Editor(CalculateCodeEditor(), CalculateCodeEditorPosition());
@@ -93,6 +96,7 @@ partial class Program
             Frames? stickmanFrames = null;
             float runSpeed = 12f;
             MusicManager.Update();
+            ThemeManager.Update();
 
             if (IsWindowResized())
             {
@@ -161,7 +165,17 @@ partial class Program
                         //SaveCode();
                     }
                 }
-
+                if (IsMouseButtonPressed(MouseButton.Left))
+{
+    Vector2 mousePosition = GetMousePosition(); // Hernoem naar mousePosition
+    if (CheckCollisionPointRec(mousePosition, themeToggle.Bounds))
+    {
+        if (!ThemeManager.IsLightMode)
+        {
+            ThemeManager.StartThemeSwitch();
+        }
+    }
+}
                 // Close buttons for windows
                 if (outputWindow.IsVisible)
                 {
@@ -320,13 +334,13 @@ partial class Program
                 BeginDrawing();
 
                 // Background
-                ClearBackground(new Color(20, 20, 30, 255));
+                ClearBackground(ThemeManager.GetBackgroundColor());
 
                 // DrawHeader()
                 {
                     // Header background
-                    DrawRectangle(0, 0, screenWidth, 60, new Color(40, 40, 60, 255));
-                    DrawRectangle(0, 60, screenWidth, 2, new Color(80, 60, 120, 255));
+                    DrawRectangle(0, 0, screenWidth, 60, ThemeManager.GetHeaderColor());
+DrawRectangle(0, 60, screenWidth, 2, ThemeManager.GetAccentColor());
 
                 }
 
@@ -346,15 +360,16 @@ partial class Program
                 tipsButton.Draw(StickmanOver(stickmanPos, tipsButton.Bounds));
                 saveButton.Draw(StickmanOver(stickmanPos, saveButton.Bounds));
                 volumeSlider.Draw();
-
+                // Voeg deze regel toe bij de andere UI element draws:
+themeToggle.Draw();
                 // DrawStatusMessage();
                 {
                     Color statusColor = currentState switch
-                    {
-                        GameState.Moving => Color.Red,
-                        GameState.Editing => Color.Green,
-                        _ => new Color(100, 200, 255, 255)
-                    };
+{
+    GameState.Moving => Color.Red,
+    GameState.Editing => Color.Green,
+    _ => ThemeManager.GetLightAccentColor()
+};
 
                     DrawTextEx(regular_font, statusMessage, new Vector2(250, 20), font_size, spacing, statusColor);
                 }
@@ -364,6 +379,7 @@ partial class Program
                 tipsWindow.Draw();
                 achievementManager.DrawAchievementsPanel(screenWidth, screenHeight);
                 achievementManager.DrawAchievementNotifications(screenWidth, screenHeight);
+                ThemeManager.DrawThemePopup(screenWidth, screenHeight);
 
                 var source = new Rectangle(stickmanFrames.index * stickmanFrames.width, 0, stickmanFrames.width, stickmanFrames.height);
                 var dest = new Rectangle(stickmanPos.X, stickmanPos.Y, stickmanFrames.width, stickmanFrames.height);

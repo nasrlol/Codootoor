@@ -134,9 +134,9 @@ public partial class Program
             float markerX = VisualBounds.X + fillWidth;
             Raylib.DrawRectangle((int)markerX - 2, (int)VisualBounds.Y - 5, 4, (int)VisualBounds.Height + 10, Color.White);
 
-            Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
-            Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15,
-                    (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
+            Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, ThemeManager.GetTextColor());
+    Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
+              (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, ThemeManager.GetTextColor());
         }
     }
 
@@ -268,14 +268,14 @@ public partial class Program
 
         private List<string> tips = new List<string>
         {
-            "Type letters to trigger quick deliveries",
-            "Use 'print \"text\"' to output messages",
-            "Stickman can fall! Be careful with timing",
-            "Execute code to see program output",
-            "Clear the editor to start fresh",
-            "Check achievements for your progress",
-            "More lines = more coding experience",
-            "Quick deliveries help practice typing"
+           "CONTROLS:",
+        "- ALT = Switch Edit/Move modes",
+        "- ARROWS = Move stickman", 
+        "- SPACE = Punch buttons",
+        "QUICK ACTIONS:",
+        "- EXECUTE = Run code",
+        "- CLEAR = Wipe editor",
+        "- ACHIEVEMENTS = Track progress"
         };
 
         public TipsWindow()
@@ -335,7 +335,20 @@ public partial class Program
                 }
             }
         }
-
+        public static void ToggleLightMode()
+{
+    if (!IsLightMode)
+    {
+        StartThemeSwitch();
+    }
+    else
+    {
+        // Als je terug naar dark mode wilt kunnen, gebruik dan:
+        IsLightMode = false;
+        ShowThemePopup = false;
+        ConfirmationLevel = 0;
+    }
+}
         public static void StartThemeSwitch()
         {
             if (!IsLightMode && !isTransitioning)
@@ -434,70 +447,76 @@ public partial class Program
         }
 
         public static void DrawThemePopup(int screenWidth, int screenHeight)
+{
+    if (!ShowThemePopup) return;
+
+    string[] messages = {
+        "Are you SURE you want to use Light Mode?",
+        "Are you VERY sure? This is irreversible!"
+    };
+
+    string[] buttonTexts = {
+        "Yes, I'm brave!",
+        "I accept!"
+    };
+
+    int currentMessage = ConfirmationLevel - 1;
+    if (currentMessage < 0 || currentMessage >= messages.Length) return;
+
+    // Donker overlay
+    Raylib.DrawRectangle(0, 0, screenWidth, screenHeight, new Color(0, 0, 0, 180));
+
+    // Popup background
+    int popupWidth = 600;
+    int popupHeight = 300;
+    int popupX = (screenWidth - popupWidth) / 2;
+    int popupY = (screenHeight - popupHeight) / 2;
+
+    DrawRectangle(popupX, popupY, popupWidth, popupHeight, new Color(40, 40, 60, 255));
+    DrawRectangleLines(popupX, popupY, popupWidth, popupHeight, new Color(120, 100, 160, 255));
+    DrawRectangleLines(popupX - 2, popupY - 2, popupWidth + 4, popupHeight + 4, new Color(160, 140, 200, 255));
+
+    // Warning icon
+    DrawTextEx(regular_font, "!", new Vector2(popupX + 275, popupY + 40), 60, 0, Color.Yellow);
+
+    // Message
+    DrawTextEx(regular_font, messages[currentMessage], new Vector2(popupX + 50, popupY + 120), 24, 0, Color.White);
+
+    // Yes button
+    Rectangle yesButton = new Rectangle(popupX + 150, popupY + 200, 150, 50);
+    bool yesHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), yesButton);
+
+    DrawRectangleRec(yesButton, yesHover ? new Color(100, 200, 100, 255) : new Color(60, 160, 60, 255));
+    DrawRectangleLines((int)yesButton.X, (int)yesButton.Y, (int)yesButton.Width, (int)yesButton.Height, new Color(120, 220, 120, 255));
+    
+    // FIX: Use buttonTexts instead of messages for button text
+    int yesTextWidth = MeasureText(buttonTexts[currentMessage], 16);
+    DrawTextEx(regular_font, buttonTexts[currentMessage], new Vector2(yesButton.X + (yesButton.Width - yesTextWidth) / 2, yesButton.Y + 15), 16, 0, Color.White);
+
+    // No button
+    Rectangle noButton = new Rectangle(popupX + 320, popupY + 200, 150, 50);
+    bool noHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), noButton);
+
+    DrawRectangleRec(noButton, noHover ? new Color(200, 100, 100, 255) : new Color(160, 60, 60, 255));
+    DrawRectangleLines((int)noButton.X, (int)noButton.Y, (int)noButton.Width, (int)noButton.Height, new Color(220, 120, 120, 255));
+    
+    // FIX: Correct text position for "NO" button
+    int noTextWidth = MeasureText("NO, SAVE ME!", 16);
+    DrawTextEx(regular_font, "NO, SAVE ME!", new Vector2(noButton.X + (noButton.Width - noTextWidth) / 2, noButton.Y + 15), 16, 0, Color.White);
+
+    // Handle clicks
+    if (Raylib.IsMouseButtonPressed(MouseButton.Left))
+    {
+        if (yesHover)
         {
-            if (!ShowThemePopup) return;
-
-            string[] messages = {
-                "Are you SURE you want to use Light Mode?",
-                "Are you VERY sure? This is irreversible!"
-            };
-
-            string[] buttonTexts = {
-                "Yes, I'm brave!",
-                "I accept!"
-            };
-
-            int currentMessage = ConfirmationLevel - 1;
-            if (currentMessage < 0 || currentMessage >= messages.Length) return;
-
-            // Donker overlay
-            Raylib.DrawRectangle(0, 0, screenWidth, screenHeight, new Color(0, 0, 0, 180));
-
-            // Popup background
-            int popupWidth = 600;
-            int popupHeight = 300;
-            int popupX = (screenWidth - popupWidth) / 2;
-            int popupY = (screenHeight - popupHeight) / 2;
-
-            DrawRectangle(popupX, popupY, popupWidth, popupHeight, new Color(40, 40, 60, 255));
-            DrawRectangleLines(popupX, popupY, popupWidth, popupHeight, new Color(120, 100, 160, 255));
-            DrawRectangleLines(popupX - 2, popupY - 2, popupWidth + 4, popupHeight + 4, new Color(160, 140, 200, 255));
-
-            // Warning icon
-            DrawTextEx(regular_font, "!", new Vector2(popupX + 275, popupY + 40), 60, 0, Color.Yellow);
-
-            // Message
-            DrawTextEx(regular_font, messages[currentMessage], new Vector2((int)popupX + 50, (int)popupY + 120), font_size, spacing, Color.White);
-
-            // Yes button
-            Rectangle yesButton = new Rectangle(popupX + 150, popupY + 200, 150, 50);
-            bool yesHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), yesButton);
-
-            DrawRectangleRec(yesButton, yesHover ? new Color(100, 200, 100, 255) : new Color(60, 160, 60, 255));
-            DrawRectangleLines((int)yesButton.X, (int)yesButton.Y, (int)yesButton.Width, (int)yesButton.Height, new Color(120, 220, 120, 255));
-            DrawTextEx(regular_font, messages[currentMessage], new Vector2((int)popupX + 50, (int)popupY + 120), font_size, spacing, Color.White);
-
-            // No button
-            Rectangle noButton = new Rectangle(popupX + 320, popupY + 200, 150, 50);
-            bool noHover = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), noButton);
-
-            DrawRectangleRec(noButton, noHover ? new Color(200, 100, 100, 255) : new Color(160, 60, 60, 255));
-            DrawRectangleLines((int)noButton.X, (int)noButton.Y, (int)noButton.Width, (int)noButton.Height, new Color(220, 120, 120, 255));
-            DrawTextEx(regular_font, "NO, SAVE ME!", new Vector2((int)noButton.X + 25, (int)noButton.Y), font_size, spacing, Color.White);
-
-            // Handle clicks
-            if (Raylib.IsMouseButtonPressed(MouseButton.Left))
-            {
-                if (yesHover)
-                {
-                    StartThemeSwitch();
-                }
-                else if (noHover)
-                {
-                    CancelThemeSwitch();
-                }
-            }
+            StartThemeSwitch();
         }
+        else if (noHover)
+        {
+            CancelThemeSwitch();
+        }
+    }
+}
     }
 
     static Rectangle CalculateCodeEditor()
@@ -568,7 +587,7 @@ public partial class Program
     static Rectangle CalculateVolumeSlider()
     {
         return new Rectangle(
-                screenWidth * 0.75f + 70,
+                screenWidth * 0.70f + 70,
                 screenHeight * 0.57f,
                 30,
                 200
@@ -578,7 +597,7 @@ public partial class Program
     static Rectangle CalculateVolumeSliderActual()
     {
         return new Rectangle(
-                screenWidth * 0.75f + 70,
+                screenWidth * 0.70f + 70,
                 screenHeight * 0.56f,
                 30,
                 200
@@ -588,8 +607,8 @@ public partial class Program
     static Rectangle CalculateThemeToggle()
     {
         return new Rectangle(
-                screenWidth * 0.75f,
-                screenHeight * 0.65f,
+                screenWidth * 0.84f,
+                screenHeight * 0.56f,
                 80,
                 30
                 );
