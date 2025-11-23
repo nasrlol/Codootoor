@@ -45,7 +45,7 @@ public partial class Program
 
             // Labels
             DrawTextEx(regular_font, "THEME", new Vector2((int)Bounds.X, (int)Bounds.Y - 25), 20, 0, ThemeManager.GetTextColor());
-            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 5, (int)Bounds.Y + 7), codeFontSize, 0, Color.White);
+            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 9, (int)Bounds.Y + 7), codeFontSize, 0, Color.White);
             DrawTextEx(regular_font, "L", new Vector2((int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7), codeFontSize, 0, Color.Black);
 
         }
