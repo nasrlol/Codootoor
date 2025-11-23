@@ -160,7 +160,7 @@ public partial class Program
             DrawRectangleLines(panelX - 1, panelY - 1, panelWidth + 2, panelHeight + 2, ThemeManager.GetLightAccentColor());
 
             int unlockedCount = Achievements.Count(a => a.IsUnlocked);
-            DrawTextEx(regular_font, $"ACHIEVEMENTS - {unlockedCount}/{Achievements.Count} Unlocked", 
+            DrawTextEx(regular_font, $"ACHIEVEMENTS - {unlockedCount}/{Achievements.Count}", 
                       new Vector2(panelX + 20, panelY + 20), 24, spacing, Color.Gold);
             
             DrawLine(panelX + 20, panelY + 60, panelX + panelWidth - 20, panelY + 60, ThemeManager.GetAccentColor());
@@ -205,7 +205,7 @@ public partial class Program
                     DrawTextEx(regular_font, achievement.Description, 
                               new Vector2(panelX + 35, (int)itemY + 28), 14, spacing, descColor);
                     DrawTextEx(regular_font, status, 
-                              new Vector2(panelX + panelWidth - 120, (int)itemY + 15), 16, spacing, statusColor);
+                              new Vector2(panelX + panelWidth - 140, (int)itemY + 15), 16, spacing, statusColor);
                 }
             }
 
