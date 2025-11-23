@@ -214,7 +214,7 @@ public partial class Program
             return OutputText.Split('\n').Length;
         }
 
-        public void Draw()
+        public void Draw(bool Hovered)
         {
             if (!IsVisible) return;
 
@@ -226,7 +226,7 @@ public partial class Program
             DrawTextEx(regular_font, "PROGRAM OUTPUT", new Vector2((int)Bounds.X + 10, (int)Bounds.Y + 5), 20, spacing, Color.Gold);
 
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
-            Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
+            Color closeColor = Hovered ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
             DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 4, (int)closeButton.Y + 2), codeFontSize, spacing, Color.White);
 
@@ -280,7 +280,7 @@ public partial class Program
             Bounds = new Rectangle(300, 150, 600, 400);
         }
 
-        public void Draw()
+        public void Draw(bool Hovered)
         {
             if (!IsVisible) return;
 
@@ -296,7 +296,7 @@ public partial class Program
             }
 
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
-            Color closeColor = Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
+            Color closeColor = Hovered ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
             DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 4, (int)closeButton.Y + 2), codeFontSize, 0, Color.White);
         }

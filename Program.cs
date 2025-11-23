@@ -158,7 +158,7 @@ partial class Program
             }
         }
 
-        public void Draw()
+        public void Draw(bool Hovered)
         {
             if (!IsVisible) return;
 
@@ -206,7 +206,7 @@ partial class Program
 
             // Close button
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
-            Color closeColor = CheckCollisionPointRec(GetMousePosition(), closeButton) ? Color.Red : new Color(200, 100, 100, 255);
+            Color closeColor = Hovered ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
             DrawTextEx(regular_font, "X", new Vector2(closeButton.X + 4, closeButton.Y + 2), codeFontSize, 0, Color.White);
         }
@@ -662,9 +662,9 @@ partial class Program
                 DrawText($"{Line},{Column}", 28, 70, 20, new Color(80, 60, 120, 255));
 
                 // Draw windows
-                outputWindow.Draw();
-                tipsWindow.Draw();
-                saveWindow.Draw();
+                outputWindow.Draw(StickmanOver(stickmanPos, outputWindow.Bounds));
+                tipsWindow.Draw(StickmanOver(stickmanPos, tipsWindow.Bounds));
+                saveWindow.Draw(StickmanOver(stickmanPos, saveWindow.Bounds));
                 achievementManager.DrawAchievementNotifications(screenWidth, screenHeight);
                 achievementManager.DrawAchievementsPanel(screenWidth, screenHeight);
                 ThemeManager.DrawThemePopup(screenWidth, screenHeight);
