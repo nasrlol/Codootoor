@@ -246,7 +246,7 @@ partial class Program
             pressedChar = false;
             bool stickmanMoved = false;
             Frames? stickmanFrames = null;
-            float runSpeed = 12f;
+            float runSpeed = 8f;
             MusicManager.Update();
             ThemeManager.Update();
             saveWindow.Update();
@@ -267,6 +267,7 @@ partial class Program
                 volumeSlider.ActualBounds = CalculateVolumeSliderActual();
                 outputWindow.Bounds = new Rectangle(screenWidth / 2 - 400, screenHeight / 2 - 300, 800, 500);
                 tipsWindow.Bounds = new Rectangle(screenWidth / 2 - 300, screenHeight / 2 - 200, 600, 400);
+                themeToggle.Bounds = CalculateThemeToggle();
             }
 
             // Handle input

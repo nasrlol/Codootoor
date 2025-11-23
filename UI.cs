@@ -45,7 +45,7 @@ public partial class Program
 
             // Labels
             DrawTextEx(regular_font, "THEME", new Vector2((int)Bounds.X, (int)Bounds.Y - 25), 20, 0, ThemeManager.GetTextColor());
-            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 5, (int)Bounds.Y + 7), codeFontSize, 0, Color.White);
+            DrawTextEx(regular_font, "D", new Vector2((int)Bounds.X + 9, (int)Bounds.Y + 7), codeFontSize, 0, Color.White);
             DrawTextEx(regular_font, "L", new Vector2((int)Bounds.X + (int)Bounds.Width - 25, (int)Bounds.Y + 7), codeFontSize, 0, Color.Black);
 
         }
@@ -487,8 +487,8 @@ public partial class Program
     int iconSize = ConfirmationLevel >= 4 ? 80 : 60;
     DrawTextEx(regular_font, "!", new Vector2(popupX + 300, popupY + 40), iconSize, 0, Color.Yellow);
 
-    // Main message
-    DrawTextEx(regular_font, messages[currentMessage], new Vector2(popupX + 50, popupY + 120), 24, 0, Color.White);
+    // Message
+    DrawTextEx(regular_font, messages[currentMessage], new Vector2(popupX + 25, popupY + 120), 15, spacing, Color.White);
 
     // Verwarrende vraag
     if (ConfirmationLevel >= 3 && confusingQuestions[currentMessage] != "")
