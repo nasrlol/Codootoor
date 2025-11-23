@@ -323,8 +323,11 @@ partial class Program
                 }
 
                 DrawEditor();
+
+                /*
                 EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
                 EnvironmentRenderer.DrawHouse(CalculateHousePosition());
+                */
 
 
 
