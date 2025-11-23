@@ -319,7 +319,10 @@ public partial class Program
                 }
 
                 DrawEditor();
-                
+                EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
+                EnvironmentRenderer.DrawHouse(CalculateHousePosition());
+
+
 
                 // Draw UI elements
                 executeButton.Draw(StickmanOver(stickmanPos, executeButton.Bounds));
