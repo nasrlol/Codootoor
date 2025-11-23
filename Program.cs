@@ -11,7 +11,7 @@ partial class Program
     // font 
     static int font_size = 31;
     static float spacing = 5f;
-    
+
 
     static string regular_font_path = "assets/JetBrainsMono-Bold.ttf";
     static string extra_bold_font_path = "assets/JetBrainsMono-ExtraBold.ttf";
@@ -380,6 +380,8 @@ partial class Program
 
                 if (pressedChar)
                 {
+                    MusicManager.PlayTypeSound();
+
                     var punchAnimationFrames = new Frames(atlasPunch, 64, 64, 10, 1f);
                     punchAnimationFrames.prevTimer = 0;
                     punchAnimationFrames.timer = 0;
