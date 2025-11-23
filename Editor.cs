@@ -36,7 +36,7 @@ public partial class Program
         }
     }
 
-				static Editor editor;
+    static Editor editor;
 
     public const int LINE_HEIGHT = 25;
 
@@ -49,69 +49,69 @@ public partial class Program
     }
 
     private static void ProcessControlKeys()
-{
-    // Handle backspace
-    if (IsKeyPressed(KeyboardKey.Backspace))
     {
-        HandleBackspace();
-        lastHeldKey = KeyboardKey.Backspace;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
-
-    if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle backspace
+        if (IsKeyPressed(KeyboardKey.Backspace))
         {
             HandleBackspace();
+            lastHeldKey = KeyboardKey.Backspace;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
-    }
 
-    // Handle Delete key
-    if (IsKeyPressed(KeyboardKey.Delete))
-    {
-        HandleDelete();
-        lastHeldKey = KeyboardKey.Delete;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleBackspace();
+            }
+        }
 
-    if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle Delete key
+        if (IsKeyPressed(KeyboardKey.Delete))
         {
             HandleDelete();
+            lastHeldKey = KeyboardKey.Delete;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
-    }
 
-    // Handle enter
-    if (IsKeyPressed(KeyboardKey.Enter))
-    {
-        HandleEnter();
-        lastHeldKey = KeyboardKey.Enter;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleDelete();
+            }
+        }
 
-    // Handle space (with proper repeating)
-    if (IsKeyPressed(KeyboardKey.Space))
-    {
-        HandleSpace();
-        lastHeldKey = KeyboardKey.Space;
-        keyHoldTimer = 0f;
-        isRepeating = false;
-    }
+        // Handle enter
+        if (IsKeyPressed(KeyboardKey.Enter))
+        {
+            HandleEnter();
+            lastHeldKey = KeyboardKey.Enter;
+            keyHoldTimer = 0f;
+            isRepeating = false;
+        }
 
-    if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
-    {
-        keyHoldTimer += GetFrameTime();
-        if (ShouldRepeatKey())
+        // Handle space (with proper repeating)
+        if (IsKeyPressed(KeyboardKey.Space))
         {
             HandleSpace();
+            lastHeldKey = KeyboardKey.Space;
+            keyHoldTimer = 0f;
+            isRepeating = false;
         }
-    }
+
+        if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
+        {
+            keyHoldTimer += GetFrameTime();
+            if (ShouldRepeatKey())
+            {
+                HandleSpace();
+            }
+        }
 
         // Handle Tab key for indentation
         if (IsKeyPressed(KeyboardKey.Tab))
