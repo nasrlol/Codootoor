@@ -153,6 +153,7 @@ public partial class Program
         if (key > 0)
         {
             pressedChar = true;
+            MusicManager.PlayTypeSound();
 
             string charString = ((char)key).ToString();
             lastCharString = charString;
