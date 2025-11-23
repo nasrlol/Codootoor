@@ -487,4 +487,20 @@ private static void HandleDelete()
             return false;
         }
     }
+
+    public static string ToBuffer(List<String> lines)
+    {
+        if (lines == null) return string.Empty;
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    public void RandomDeletion()
+    {
+        Random num = new();
+        if (num.Next(1, 10) < 6)
+        {
+            statusMessage = "LOL YOU'RE CODE IS GONE";
+            ClearEditor();
+        } else return; 
+    }
 }
