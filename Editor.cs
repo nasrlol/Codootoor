@@ -4,12 +4,9 @@ using Raylib_cs;
 using static Raylib_cs.Raylib;
 
 using System;
-using static System.Console;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Linq;
 using System.IO;
-using System.Text;
 
 public partial class Program
 {
@@ -22,7 +19,7 @@ public partial class Program
     private static int cursorPosition = 0;
 
     static Vector2 lastCharPos;
-    static string lastCharString;
+    static string? lastCharString;
 
     public struct Editor
     {
@@ -141,7 +138,6 @@ public partial class Program
         //    editor.Lines.RemoveAt(editor.CurrentLine + 1);
         //}
     }
-
 
     static bool pressedChar;
 

@@ -1,18 +1,23 @@
 using Raylib_cs;
 using static Raylib_cs.Raylib;
-using System;
-using static System.Console;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Linq;
-using System.IO;
 
 namespace Odootoor;
 
 enum GameState { Editing, Moving }
 
-public partial class Program
+partial class Program
 {
+    // font 
+    static int font_size = 31;
+    static float spacing = 5f;
+    
+
+    static string regular_font_path = "assets/JetBrainsMono-Bold.ttf";
+    static string extra_bold_font_path = "assets/JetBrainsMono-ExtraBold.ttf";
+    static Font regular_font;
+    static Font extra_bold_font;
+
     const bool DEBUGDisableDeliveries = true;
 
     static int screenWidth = 1400;
@@ -53,10 +58,12 @@ public partial class Program
 
     static void Main()
     {
-        InitWindow(screenWidth, screenHeight, "Stickman IDE - Code Delivery Adventure");
+        InitWindow(screenWidth, screenHeight, "Stickman IDE - Code Adventure");
         SetWindowState(ConfigFlags.ResizableWindow);
         SetTargetFPS(60);
         SetExitKey(KeyboardKey.Null);
+        regular_font = LoadFont(regular_font_path);
+        extra_bold_font = LoadFont(extra_bold_font_path);
 
         MusicManager.Initialize();
         MusicManager.LoadMusic();
@@ -83,7 +90,7 @@ public partial class Program
         {
             pressedChar = false;
             bool stickmanMoved = false;
-            Frames stickmanFrames = null;
+            Frames? stickmanFrames = null;
             float runSpeed = 12f;
             MusicManager.Update();
 
@@ -101,7 +108,7 @@ public partial class Program
                 saveButton.Bounds = CalculateSaveButton();
                 volumeSlider.VisualBounds = CalculateVolumeSlider();
                 volumeSlider.ActualBounds = CalculateVolumeSliderActual();
-                outputWindow.Bounds = new Rectangle(screenWidth / 2 - 400, screenHeight / 2 - 250, 800, 500);
+                outputWindow.Bounds = new Rectangle(screenWidth / 2 - 400, screenHeight / 2 - 300, 800, 500);
                 tipsWindow.Bounds = new Rectangle(screenWidth / 2 - 300, screenHeight / 2 - 200, 600, 400);
             }
 
@@ -317,13 +324,16 @@ public partial class Program
                     DrawRectangle(0, 0, screenWidth, 60, new Color(40, 40, 60, 255));
                     DrawRectangle(0, 60, screenWidth, 2, new Color(80, 60, 120, 255));
 
-                    // Title
-                    DrawText("STICKMAN IDE", screenWidth / 2 - 150, 10, 36, Color.White);
-                    DrawText("Code Delivery Adventure", screenWidth / 2 - 120, 45, 18, new Color(200, 180, 255, 255));
                 }
 
                 DrawEditor();
-                
+
+                /*
+                EnvironmentRenderer.DrawWaterWaves(editor.Bounds);
+                EnvironmentRenderer.DrawHouse(CalculateHousePosition());
+                */
+
+
 
                 // Draw UI elements
                 executeButton.Draw(StickmanOver(stickmanPos, executeButton.Bounds));
@@ -342,7 +352,7 @@ public partial class Program
                         _ => new Color(100, 200, 255, 255)
                     };
 
-                    DrawText("Status: " + statusMessage, 20, 70, 20, statusColor);
+                    DrawTextEx(regular_font, statusMessage, new Vector2(250, 20), font_size, spacing, statusColor);
                 }
 
                 // Draw windows
@@ -405,3 +415,4 @@ public partial class Program
     }
 
 }
+

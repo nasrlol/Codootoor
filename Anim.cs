@@ -1,6 +1,4 @@
-using System;
 using System.Numerics;
-
 using Raylib_cs;
 using static Raylib_cs.Raylib;
 using System.Diagnostics;
@@ -91,14 +89,14 @@ public partial class Program
         Rectangle source = new Rectangle(frames.index * frames.width, 0, -1f * frames.width, frames.height);
         Rectangle dest = new Rectangle(manPos.X, manPos.Y, frames.width, frames.height);
 
-        if (DEBUGShowBoxes)
-        {
-            DrawRectangle((int)dest.X - frames.width / 2, (int)dest.Y - frames.height / 2, frames.width, frames.height, Color.Green);
-        }
-        if (DEBUGShowBoxes)
-        {
-            DrawRectangleV(charPos, fontDim, Color.Pink);
-        }
+        // if (DEBUGShowBoxes)
+        // {
+        //     DrawRectangle((int)dest.X - frames.width / 2, (int)dest.Y - frames.height / 2, frames.width, frames.height, Color.Green);
+        // }
+        // if (DEBUGShowBoxes)
+        // {
+        //     DrawRectangleV(charPos, fontDim, Color.Pink);
+        // }
 
         // DrawText(character, (int)charPos.X, (int)charPos.Y, codeFontSize, Color.Red);
         DrawTexturePro(frames.atlas, source, dest, new Vector2(frames.width / 2, frames.height / 2), 0, Color.Green);
