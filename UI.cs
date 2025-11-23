@@ -237,7 +237,7 @@ public partial class Program
             for (int i = startLine; i < Math.Min(startLine + visibleLines + 1, lines.Length); i++)
             {
                 float yPos = Bounds.Y + 40 + (i - startLine) * 20 - (ScrollOffset % 20);
-                DrawTextEx(regular_font, lines[i], new Vector2((int)Bounds.X + 10, (int)yPos), 16, spacing, ThemeManager.GetTextColor());
+                DrawTextEx(LoadFont("assets/jb.ttf"), lines[i], new Vector2((int)Bounds.X + 10, (int)yPos), 16, 2, ThemeManager.GetTextColor());
             }
 
             if (CountLines() * 20 > Bounds.Height - 40)
