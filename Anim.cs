@@ -80,14 +80,16 @@ public partial class Program
 
         var fontDim = MeasureTextEx(defaultFont, character, codeFontSize, 0);
 
-        var manPos = new Vector2(charPos.X + (int)(fontDim.X + frames.width / 2), charPos.Y + (int)(fontDim.Y / 2));
+	float width = 64*1;
+	float height = 64*1;
+        var manPos = new Vector2(charPos.X + (int)(fontDim.X + width / 2), charPos.Y + (int)(fontDim.Y / 2));
         // manual hand offset
         manPos.X -= 16;
         manPos.Y += 3;
 
         // Flip horizontal
         Rectangle source = new Rectangle(frames.index * frames.width, 0, -1f * frames.width, frames.height);
-        Rectangle dest = new Rectangle(manPos.X, manPos.Y, frames.width, frames.height);
+        Rectangle dest = new Rectangle(manPos.X, manPos.Y, width, height);
 
         // if (DEBUGShowBoxes)
         // {
@@ -99,7 +101,7 @@ public partial class Program
         // }
 
         // DrawText(character, (int)charPos.X, (int)charPos.Y, codeFontSize, Color.Red);
-        DrawTexturePro(frames.atlas, source, dest, new Vector2(frames.width / 2, frames.height / 2), 0, Color.Green);
+        DrawTexturePro(frames.atlas, source, dest, new Vector2(frames.width / 2, frames.height / 2), 0, Color.White);
     }
 
 }
