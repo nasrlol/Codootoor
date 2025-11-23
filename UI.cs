@@ -469,7 +469,7 @@ public partial class Program
     DrawTextEx(regular_font, "!", new Vector2(popupX + 275, popupY + 40), 60, 0, Color.Yellow);
 
     // Message
-    DrawTextEx(regular_font, messages[currentMessage], new Vector2(popupX + 50, popupY + 120), 24, 0, Color.White);
+    DrawTextEx(regular_font, messages[currentMessage], new Vector2(popupX + 25, popupY + 120), 15, spacing, Color.White);
 
     // Yes button
     Rectangle yesButton = new Rectangle(popupX + 150, popupY + 200, 150, 50);
@@ -480,7 +480,7 @@ public partial class Program
     
     // FIX: Use buttonTexts instead of messages for button text
     int yesTextWidth = MeasureText(buttonTexts[currentMessage], 16);
-    DrawTextEx(regular_font, buttonTexts[currentMessage], new Vector2(yesButton.X + (yesButton.Width - yesTextWidth) / 2, yesButton.Y + 15), 16, 0, Color.White);
+    DrawTextEx(extra_bold_font, buttonTexts[currentMessage], new Vector2((yesButton.X + (yesButton.Width - yesTextWidth) / 2) - 15, yesButton.Y + 15), 18, spacing - 4, Color.White);
 
     // No button
     Rectangle noButton = new Rectangle(popupX + 320, popupY + 200, 150, 50);
@@ -491,7 +491,7 @@ public partial class Program
     
     // FIX: Correct text position for "NO" button
     int noTextWidth = MeasureText("NO, SAVE ME!", 16);
-    DrawTextEx(regular_font, "NO, SAVE ME!", new Vector2(noButton.X + (noButton.Width - noTextWidth) / 2, noButton.Y + 15), 16, 0, Color.White);
+    DrawTextEx(extra_bold_font, "NO, SAVE ME!", new Vector2((noButton.X + (noButton.Width - noTextWidth) / 2) - 15, noButton.Y + 15), 16, spacing, Color.White);
 
     // Handle clicks
     if (Raylib.IsMouseButtonPressed(MouseButton.Left))
