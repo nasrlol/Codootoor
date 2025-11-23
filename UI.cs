@@ -1,18 +1,11 @@
-namespace Odootoor;
-
 using Raylib_cs;
 using static Raylib_cs.Raylib;
-
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Linq;
-using System.IO;
 
+namespace Odootoor;
 
 public partial class Program
 {
-
     class ThemeToggle
     {
         public Rectangle Bounds { get; set; }
@@ -111,38 +104,41 @@ public partial class Program
             Vector2 mousePos = Raylib.GetMousePosition();
             if (Raylib.IsMouseButtonDown(MouseButton.Left) && Raylib.CheckCollisionPointRec(mousePos, ActualBounds))
             {
-                float relativeY = mousePos.Y - ActualBounds.Y;
-                Volume = Math.Clamp(1.0f - (relativeY / ActualBounds.Height), 0f, 1f);
-                Raylib.SetMasterVolume(Volume);
+                    // CHANGE: Use X coordinate instead of Y for horizontal movement
+                    float relativeX = mousePos.X - ActualBounds.X;
+                    Volume = Math.Clamp(relativeX / ActualBounds.Width, 0f, 1f);
+                    Raylib.SetMasterVolume(Volume);
 
-                // Update muziek volume als het geladen is
-                if (MusicManager.isLoaded)
-                {
-                    Raylib.SetMusicVolume(MusicManager.BackgroundMusic, Volume);
+                    // Update muziek volume als het geladen is
+                    if (MusicManager.isLoaded)
+                    {
+                        Raylib.SetMusicVolume(MusicManager.BackgroundMusic, Volume);
+                    }
                 }
             }
-        }
 
-    public void Draw()
-    {
-        Raylib.DrawRectangleRec(VisualBounds, new Color(50, 50, 70, 255));
-        Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y, 
-                (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
+        public void Draw()
+        {
+            Raylib.DrawRectangleRec(VisualBounds, new Color(50, 50, 70, 255));
+            Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y, 
+                    (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
 
-            float fillHeight = VisualBounds.Height * Volume;
+            // CHANGE: Fill from left to right instead of bottom to top
+            float fillWidth = VisualBounds.Width * Volume;
             Color fillColor = new Color(50, 200, 50, 255);
 
-        Raylib.DrawRectangle((int)VisualBounds.X, (int)(VisualBounds.Y + VisualBounds.Height - fillHeight), 
-                (int)VisualBounds.Width, (int)fillHeight, fillColor);
+            Raylib.DrawRectangle((int)VisualBounds.X, (int)VisualBounds.Y,
+                    (int)fillWidth, (int)VisualBounds.Height, fillColor);
 
-            float markerY = VisualBounds.Y + VisualBounds.Height - fillHeight;
-            Raylib.DrawRectangle((int)VisualBounds.X - 5, (int)markerY - 2, (int)VisualBounds.Width + 10, 4, Color.White);
+            // CHANGE: Vertical marker becomes horizontal marker
+            float markerX = VisualBounds.X + fillWidth;
+            Raylib.DrawRectangle((int)markerX - 2, (int)VisualBounds.Y - 5, 4, (int)VisualBounds.Height + 10, Color.White);
 
-        Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
-        Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
-                (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
+            Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
+            Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
+                    (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
+        }
     }
-}
 
     class FileManager
     {
@@ -250,20 +246,20 @@ public partial class Program
             }
 
 
-        lock (piper.OutputBuffer)
+            lock (piper.OutputBuffer)
+            {
+                OutputText = string.Join("\n", piper.OutputBuffer);
+            }
+        }
+
+        public bool CloseButtonClicked()
         {
-            OutputText = string.Join("\n", piper.OutputBuffer);
+            if (!IsVisible) return false;
+
+            Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
+            return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
         }
     }
-
-    public bool CloseButtonClicked()
-    {
-        if (!IsVisible) return false;
-
-        Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 5, 20, 20);
-        return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-    }
-}
 
     class TipsWindow
     {
@@ -315,59 +311,6 @@ public partial class Program
 
             Rectangle closeButton = new Rectangle(Bounds.X + Bounds.Width - 35, Bounds.Y + 15, 20, 20);
             return Raylib.CheckCollisionPointRec(Raylib.GetMousePosition(), closeButton) && Raylib.IsMouseButtonPressed(MouseButton.Left);
-        }
-    }
-
-    class EnvironmentRenderer
-    {
-        public static void DrawHouse(Vector2 position)
-        {
-            int x = (int)position.X;
-            int y = (int)position.Y;
-
-            Raylib.DrawRectangle(x - 55, y + 5, 110, 80, new Color(0, 0, 0, 100));
-
-            Raylib.DrawRectangle(x - 60, y, 120, 80, new Color(120, 80, 40, 255));
-            Raylib.DrawTriangle(new Vector2(x - 70, y), new Vector2(x + 70, y), new Vector2(x, y - 60), new Color(140, 40, 40, 255));
-
-            Raylib.DrawRectangle(x - 15, y + 20, 30, 60, new Color(80, 50, 20, 255));
-            Raylib.DrawCircle(x, y + 50, 3, Color.Gold);
-
-            DrawWindow(x - 45, y + 15);
-            DrawWindow(x + 20, y + 15);
-        }
-
-        private static void DrawWindow(int x, int y)
-        {
-            Raylib.DrawRectangle(x, y, 25, 25, new Color(135, 206, 235, 200));
-            Raylib.DrawRectangleLines(x, y, 25, 25, Color.Black);
-            Raylib.DrawLine(x + 12, y, x + 12, y + 25, Color.Black);
-            Raylib.DrawLine(x, y + 12, x + 25, y + 12, Color.Black);
-        }
-
-        public static void DrawWaterWaves(Rectangle editor)
-        {
-            int startY = (int)editor.Y + (int)editor.Height - 10;
-            for (int i = 0; i < 5; i++)
-            {
-                int y = startY + i * 8;
-                Color waveColor = new Color(30, 144, 255, 100 - i * 15);
-                for (int x = (int)editor.X; x < editor.X + editor.Width; x += 20)
-                {
-                    float waveOffset = (float)Math.Sin(Raylib.GetTime() * 3 + x * 0.1) * 3;
-                    Raylib.DrawCircle(x, y + (int)waveOffset, 8, waveColor);
-                }
-            }
-        }
-
-        public static void DrawSplashEffect(Vector2 position, float progress)
-        {
-            int splashSize = (int)(20 * progress);
-            Color splashColor = new Color(255, 255, 255, (int)(150 * (1.0f - progress)));
-
-            Raylib.DrawCircle((int)position.X, (int)position.Y, splashSize, splashColor);
-            Raylib.DrawCircle((int)position.X - 10, (int)position.Y, splashSize - 5, splashColor);
-            Raylib.DrawCircle((int)position.X + 10, (int)position.Y, splashSize - 5, splashColor);
         }
     }
 

@@ -6,11 +6,12 @@ namespace Odootoor;
 
 enum GameState { Editing, Moving }
 
-public partial class Program
+partial class Program
 {
     // font 
     static int font_size = 31;
     static float spacing = 5f;
+    
 
     static string regular_font_path = "assets/JetBrainsMono-Bold.ttf";
     static string extra_bold_font_path = "assets/JetBrainsMono-ExtraBold.ttf";
@@ -25,12 +26,12 @@ public partial class Program
     const int CODE_EDITOR_HEIGHT_PERCENT = 85;
 
     static AchievementManager achievementManager = new AchievementManager();
-    static UIButton? executeButton;
-    static UIButton? achievementsButton;
-    static UIButton? clearButton;
-    static UIButton? tipsButton;
-    static UIButton? saveButton;
-    static VolumeSlider? volumeSlider;
+    static UIButton executeButton;
+    static UIButton achievementsButton;
+    static UIButton clearButton;
+    static UIButton tipsButton;
+    static UIButton saveButton;
+    static VolumeSlider volumeSlider;
     static OutputWindow outputWindow = new();
     static TipsWindow tipsWindow = new();
 
@@ -403,3 +404,4 @@ public partial class Program
     }
 
 }
+
