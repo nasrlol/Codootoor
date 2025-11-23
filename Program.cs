@@ -148,7 +148,7 @@ public partial class Program
                             }
                         } else {
                             outputWindow.IsVisible = true;
-                            outputWindow.piper.Run(ToBuffer(editor.Lines));
+                            outputWindow.piper.Run(editor.Text);
                             outputWindow.OutputText = "";
                         }
 
