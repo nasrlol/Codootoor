@@ -91,7 +91,7 @@ partial class Program
             pressedChar = false;
             bool stickmanMoved = false;
             Frames? stickmanFrames = null;
-            float runSpeed = 12f;
+            float runSpeed = 8f;
             MusicManager.Update();
 
             if (IsWindowResized())
@@ -353,7 +353,12 @@ partial class Program
                     };
 
                     DrawTextEx(regular_font, statusMessage, new Vector2(250, 20), font_size, spacing, statusColor);
+
                 }
+
+																int Column = (cursorPosition - GetCurrentLineStart() + 1);
+																int Line = GetLineNumberFromPosition(cursorPosition) + 1;
+																DrawText($"{Line},{Column}", 28, 70, 20, new Color(80, 60, 120, 255));
 
                 // Draw windows
                 outputWindow.Draw();
