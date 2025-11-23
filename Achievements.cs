@@ -140,7 +140,7 @@ public partial class Program
             Rectangle closeButton = new Rectangle(panelX + panelWidth - 35, panelY + 15, 20, 20);
             Color closeColor = CheckCollisionPointRec(mousePos, closeButton) ? Color.Red : new Color(200, 100, 100, 255);
             DrawRectangleRec(closeButton, closeColor);
-            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 6, (int)closeButton.Y + 2), font_size, spacing, Color.White);
+            DrawTextEx(regular_font, "X", new Vector2((int)closeButton.X + 4, (int)closeButton.Y + 2), codeFontSize, spacing, Color.White);
 
             int yOffset = 100;
             int startIndex = (int)(AchievementsScrollOffset / 65);

@@ -196,8 +196,14 @@ partial class Program
                             600
                             );
 
-                    if (!StickmanOver(stickmanPos, achievementsPanel) &&
-                            !StickmanOver(stickmanPos, achievementsButton.Bounds))
+																				// NOTE(luca): Copied from Achievements.cs
+																				int panelWidth = 500;
+																				int panelHeight = 600;
+																				int panelX = (screenWidth - panelWidth) / 2;
+																				int panelY = (screenHeight - panelHeight) / 2;
+																				Rectangle closeButton = new Rectangle(panelX + panelWidth - 35, panelY + 15, 20, 20);
+
+																				if (stickmanIsPunching && StickmanOver(stickmanPos, closeButton))
                     {
                         achievementManager.ShowAchievementsPanel = false;
                     }
