@@ -327,6 +327,7 @@ partial class Program
                         saveWindow.IsVisible = true;
                         punchedButton = true;
                     }
+
                     // Check theme toggle button - ZET DIT BOVEN DE SAVE WINDOW CHECK
                     else if (StickmanOver(stickmanPos, themeToggle.Bounds))
                     {
@@ -530,6 +531,7 @@ partial class Program
                     }
                 }
 
+		var turboMode = 1;
 
                 if (!stickmanIsStuck)
                 {
@@ -555,6 +557,13 @@ partial class Program
                         {
                             dPos.Y = leftStickY * runSpeed;
                         }
+
+                        if (IsGamepadButtonDown(0, GamepadButton.RightFaceLeft))
+                        {
+				turboMode = 4;
+                        }
+			dPos *= turboMode;
+
                     }
                 }
 
