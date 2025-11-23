@@ -94,7 +94,7 @@ themeToggle = new ThemeToggle(CalculateThemeToggle());
             pressedChar = false;
             bool stickmanMoved = false;
             Frames? stickmanFrames = null;
-            float runSpeed = 12f;
+            float runSpeed = 8f;
             MusicManager.Update();
             ThemeManager.Update();
 
@@ -210,8 +210,14 @@ themeToggle = new ThemeToggle(CalculateThemeToggle());
                             600
                             );
 
-                    if (!StickmanOver(stickmanPos, achievementsPanel) &&
-                            !StickmanOver(stickmanPos, achievementsButton.Bounds))
+																				// NOTE(luca): Copied from Achievements.cs
+																				int panelWidth = 500;
+																				int panelHeight = 600;
+																				int panelX = (screenWidth - panelWidth) / 2;
+																				int panelY = (screenHeight - panelHeight) / 2;
+																				Rectangle closeButton = new Rectangle(panelX + panelWidth - 35, panelY + 15, 20, 20);
+
+																				if (stickmanIsPunching && StickmanOver(stickmanPos, closeButton))
                     {
                         achievementManager.ShowAchievementsPanel = false;
                     }
@@ -372,7 +378,12 @@ themeToggle.Draw();
 };
 
                     DrawTextEx(regular_font, statusMessage, new Vector2(250, 20), font_size, spacing, statusColor);
+
                 }
+
+																int Column = (cursorPosition - GetCurrentLineStart() + 1);
+																int Line = GetLineNumberFromPosition(cursorPosition) + 1;
+																DrawText($"{Line},{Column}", 28, 70, 20, new Color(80, 60, 120, 255));
 
                 // Draw windows
                 outputWindow.Draw();
