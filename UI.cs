@@ -357,10 +357,10 @@ public partial class Program
         }
 
         public static void CancelThemeSwitch()
-        {
-            ShowThemePopup = false;
-            ConfirmationLevel = 0;
-        }
+    {
+        ShowThemePopup = false;
+        ConfirmationLevel = 0;
+    }
 
         // Kleur methodes
         public static Color GetBackgroundColor()

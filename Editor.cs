@@ -21,20 +21,28 @@ public partial class Program
     static Vector2 lastCharPos;
     static string? lastCharString;
 
-    public struct Editor
-    {
-        public Rectangle Bounds;
-        public string Text = "";
-        public float ScrollOffset;
-        public int CurrentLine;
-        public Vector2 Position;
+   public struct Editor
+{
+    public Rectangle Bounds;
+    public string Text = "";
+    public float ScrollOffset;
+    public int CurrentLine;
+    public Vector2 Position;
 
-        public Editor(Rectangle bounds, Vector2 position)
-        {
-            Bounds = bounds;
-            Position = position;
-        }
+    public Editor(Rectangle bounds, Vector2 position)
+    {
+        Bounds = bounds;
+        Position = position;
     }
+
+    // VOEG DEZE METHODE TOE:
+    public int GetLineCount()
+    {
+        if (string.IsNullOrEmpty(Text))
+            return 1; // Altijd minstens 1 regel
+        return Text.Split('\n').Length;
+    }
+}
 
     static Editor editor;
 
