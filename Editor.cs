@@ -21,6 +21,9 @@ public partial class Program
     private static bool isRepeating = false;
     private static int cursorPosition = 0;
 
+    static Vector2 lastCharPos ;
+    static string lastCharString;
+
     public struct Editor
     {
         public Rectangle Bounds;
@@ -57,6 +60,7 @@ public partial class Program
             lastHeldKey = KeyboardKey.Backspace;
             keyHoldTimer = 0f;
             isRepeating = false;
+		    pressedChar = true;
         }
 
         if (IsKeyDown(KeyboardKey.Backspace) && lastHeldKey == KeyboardKey.Backspace)
@@ -65,6 +69,7 @@ public partial class Program
             if (ShouldRepeatKey())
             {
                 HandleBackspace();
+		    pressedChar = true;
             }
         }
 
@@ -137,14 +142,22 @@ private static void HandleDelete()
     //}
 }
 
+
+    static bool pressedChar;
+
     private static void ProcessCharacterInput()
     {
         // Simple approach - use GetCharPressed but process only 1 character per frame
+	
         int key = GetCharPressed();
         if (key > 0)
         {
-            char c = (char)key;
-            editor.Text = editor.Text.Insert(cursorPosition, c.ToString());
+	    pressedChar = true;
+
+	    string charString = ((char)key).ToString();
+	    lastCharString = charString;
+
+            editor.Text = editor.Text.Insert(cursorPosition, charString);
             cursorPosition++;
         }
     }
@@ -344,6 +357,9 @@ private static void HandleDelete()
             int totalLines = GetTotalLines();
             float maxScroll = Math.Max(0, totalLines * LINE_HEIGHT - editor.Bounds.Height + 50);
             editor.ScrollOffset = Math.Clamp(editor.ScrollOffset, 0, maxScroll);
+
+
+
         }
     }
 
@@ -381,6 +397,8 @@ private static void HandleDelete()
 
     private static void DrawCodeLines()
     {
+
+
         int visibleLines = (int)(editor.Bounds.Height / LINE_HEIGHT);
         int startLine = (int)(editor.ScrollOffset / LINE_HEIGHT);
         int totalLines = GetTotalLines();
@@ -428,11 +446,14 @@ private static void HandleDelete()
             // Calculate cursor position
             int cursorX = (int)editor.Bounds.X + 45 + MeasureText(textBeforeCursor, 18);
 
-            // Draw cursor
+	    lastCharPos = new Vector2(cursorX, currentInputY);
+
+            // Animate cursor
             if ((int)(GetTime() * 2) % 2 == 0)
             {
                 DrawRectangle(cursorX, (int)currentInputY, 2, 18, Color.Yellow);
             }
+
         }
     }
 

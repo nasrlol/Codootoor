@@ -66,7 +66,6 @@ public partial class Program
 
         // public void Draw(Rectangle bounds)
         // {
-        //     Console.WriteLine("here");
         //     const int   font_size = 14;
         //     const float spacing = 0.5f;
         //     const int   line_height = 20;

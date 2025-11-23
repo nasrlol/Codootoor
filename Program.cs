@@ -47,6 +47,10 @@ public partial class Program
 
     static float stickmanFacing = 1f;
 
+    static int codeFontSize = 18;
+
+    public static List<PunchAnimation> punchAnimationsInProgress = new List<PunchAnimation>();
+
     static void Main()
     {
         InitWindow(screenWidth, screenHeight, "Stickman IDE - Code Delivery Adventure");
@@ -74,6 +78,7 @@ public partial class Program
         var stickmanSize = 3f;
         while (!WindowShouldClose())
         {
+	    pressedChar = false;
             bool stickmanMoved = false;
             Frames stickmanFrames = null;
             float runSpeed = 12f;
@@ -354,12 +359,44 @@ public partial class Program
                 source.Width *= -stickmanFacing;
                 dest.Width *= stickmanSize;
                 dest.Height *= stickmanSize;
+
+		if(currentState == GameState.Moving)
+		{
                 DrawTexturePro(stickmanFrames.atlas,
                         source, dest, new Vector2(dest.Width / 2f, dest.Height / 2f),
                         0, Color.Blue);
+		}
 
                 // DrawText(string.Format("{0} {1}", stickmanPos.X, stickmanPos.Y), 20, 300, 20, Color.SkyBlue);
+	
 
+
+		    if (pressedChar)
+		    {
+			    var punchAnimationFrames = new Frames(atlasPunch, 64, 64, 10, 1f);
+			    punchAnimationFrames.prevTimer = 0;
+			    punchAnimationFrames.timer = 0;
+			    var punchAnimation = new PunchAnimation(punchAnimationFrames, lastCharPos, lastCharString);
+			    punchAnimationsInProgress.Add(punchAnimation);
+		    }
+
+		    for(int animationIndex = 0; animationIndex < punchAnimationsInProgress.Count; animationIndex += 1)
+		    {
+			    var animation = punchAnimationsInProgress[animationIndex];
+
+			    Frames.UpdateIndex(animation.frames);
+			    DrawCharacterWithPunchAnimation(animation.pos, animation.character, animation.frames);
+
+			    if(animation.frames.done)
+			    {
+				    punchAnimationsInProgress.RemoveAt(animationIndex);
+				    animationIndex--;
+			    }
+			    else
+			    {
+				    animation.frames.timer = animation.frames.prevTimer;
+			    }
+		    }
 
                 EndDrawing();
             }
