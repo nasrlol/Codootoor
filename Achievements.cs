@@ -54,33 +54,33 @@ public partial class Program
             Achievements.Add(new Achievement("Productive Programmer", "Execute 5 programs", () => programsExecuted >= 5));
         }
 
-    public void CheckAchievements(string inputText, int linesWritten)
-{
-    totalLinesWritten = linesWritten;
-
-    if (!hasTypedFirstLetter && !string.IsNullOrEmpty(inputText) && inputText.Any(char.IsLetter))
-    {
-        hasTypedFirstLetter = true;
-    }
-
-    foreach (var achievement in Achievements)
-    {
-        if (!achievement.IsUnlocked && achievement.CheckCondition())
+        public void CheckAchievements(string inputText, int linesWritten)
         {
-            achievement.IsUnlocked = true;
-            achievement.DisplayTime = 3.0f;
-            
-            // Speel achievement sound
-            MusicManager.PlayAchievementSound();
-        }
-    }
-}
+            totalLinesWritten = linesWritten;
 
-public void MarkProgramExecuted()
-{
-    programsExecuted++;
-    CheckAchievements("", totalLinesWritten);
-}
+            if (!hasTypedFirstLetter && !string.IsNullOrEmpty(inputText) && inputText.Any(char.IsLetter))
+            {
+                hasTypedFirstLetter = true;
+            }
+
+            foreach (var achievement in Achievements)
+            {
+                if (!achievement.IsUnlocked && achievement.CheckCondition())
+                {
+                    achievement.IsUnlocked = true;
+                    achievement.DisplayTime = 3.0f;
+
+                    // Speel achievement sound
+                    MusicManager.PlayAchievementSound();
+                }
+            }
+        }
+
+        public void MarkProgramExecuted()
+        {
+            programsExecuted++;
+            CheckAchievements("", totalLinesWritten);
+        }
 
         public void UpdateAchievementDisplays()
         {

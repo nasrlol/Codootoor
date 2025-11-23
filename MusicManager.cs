@@ -8,6 +8,7 @@ class MusicManager
     public static Music BackgroundMusic;
     private static bool isInitialized = false;
     public static bool isLoaded = false;
+    public static Sound typeSound;
 
     public static void Initialize()
     {
@@ -22,21 +23,40 @@ class MusicManager
     {
         try
         {
-            // Probeer verschillende mogelijke locaties
-            string[] possiblePaths = {
+            {
+                // Probeer verschillende mogelijke locaties
+                string[] possiblePaths = {
                 "music/background.mp3",
                 "background.mp3"
             };
 
-            foreach (string path in possiblePaths)
-            {
-                if (File.Exists(path))
+                foreach (string path in possiblePaths)
                 {
-                    BackgroundMusic = Raylib.LoadMusicStream(path);
-                    Raylib.PlayMusicStream(BackgroundMusic);
-                    Raylib.SetMusicVolume(BackgroundMusic, 0.5f);
-                    isLoaded = true;
-                    return true;
+                    if (File.Exists(path))
+                    {
+                        BackgroundMusic = Raylib.LoadMusicStream(path);
+                        Raylib.PlayMusicStream(BackgroundMusic);
+                        Raylib.SetMusicVolume(BackgroundMusic, 0.5f);
+                        isLoaded = true;
+                        break;
+                    }
+                }
+            }
+
+            {
+                string[] possiblePaths = {
+            "music/type.mp3",
+            "type.mp3"
+        };
+
+                foreach (string path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        typeSound = Raylib.LoadSound(path);
+                        Raylib.SetSoundVolume(typeSound, 0.3f); // Iets zachter voor type geluid
+                        break;
+                    }
                 }
             }
 
@@ -74,57 +94,34 @@ class MusicManager
         }
     }
     public static void PlayAchievementSound()
-{
-    try
     {
-        string[] possiblePaths = {
+        try
+        {
+            string[] possiblePaths = {
             "music/achievement.mp3",
             "achievement.mp3"
         };
 
-        foreach (string path in possiblePaths)
-        {
-            if (File.Exists(path))
+            foreach (string path in possiblePaths)
             {
-                Sound achievementSound = Raylib.LoadSound(path);
-                Raylib.SetSoundVolume(achievementSound, 0.7f);
-                Raylib.PlaySound(achievementSound);
-                return;
+                if (File.Exists(path))
+                {
+                    Sound achievementSound = Raylib.LoadSound(path);
+                    Raylib.SetSoundVolume(achievementSound, 0.7f);
+                    Raylib.PlaySound(achievementSound);
+                    return;
+                }
             }
+
+            System.Console.WriteLine("Achievement sound file not found");
         }
-
-        System.Console.WriteLine("Achievement sound file not found");
-    }
-    catch (System.Exception ex)
-    {
-        System.Console.WriteLine($"Error playing achievement sound: {ex.Message}");
-    }
-}
-public static void PlayTypeSound()
-{
-    try
-    {
-        string[] possiblePaths = {
-            "music/type.mp3",
-            "type.mp3"
-        };
-
-        foreach (string path in possiblePaths)
+        catch (System.Exception ex)
         {
-            if (File.Exists(path))
-            {
-                Sound typeSound = Raylib.LoadSound(path);
-                Raylib.SetSoundVolume(typeSound, 0.3f); // Iets zachter voor type geluid
-                Raylib.PlaySound(typeSound);
-                return;
-            }
+            System.Console.WriteLine($"Error playing achievement sound: {ex.Message}");
         }
-
-        System.Console.WriteLine("Type sound file not found");
     }
-    catch (System.Exception ex)
+    public static void PlayTypeSound()
     {
-        System.Console.WriteLine($"Error playing type sound: {ex.Message}");
+        Raylib.PlaySound(typeSound);
     }
-}
 }

@@ -384,6 +384,8 @@ partial class Program
 
                 if (pressedChar)
                 {
+                    MusicManager.PlayTypeSound();
+
                     var punchAnimationFrames = new Frames(atlasPunch, 64, 64, 10, 1f);
                     punchAnimationFrames.prevTimer = 0;
                     punchAnimationFrames.timer = 0;

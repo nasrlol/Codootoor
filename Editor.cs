@@ -77,6 +77,7 @@ public partial class Program
             lastHeldKey = KeyboardKey.Delete;
             keyHoldTimer = 0f;
             isRepeating = false;
+                pressedChar = true;
         }
 
         if (IsKeyDown(KeyboardKey.Delete) && lastHeldKey == KeyboardKey.Delete)
@@ -85,6 +86,7 @@ public partial class Program
             if (ShouldRepeatKey())
             {
                 HandleDelete();
+                pressedChar = true;
             }
         }
 
@@ -95,6 +97,7 @@ public partial class Program
             lastHeldKey = KeyboardKey.Enter;
             keyHoldTimer = 0f;
             isRepeating = false;
+                pressedChar = true;
         }
 
         // Handle space (with proper repeating)
@@ -104,6 +107,7 @@ public partial class Program
             lastHeldKey = KeyboardKey.Space;
             keyHoldTimer = 0f;
             isRepeating = false;
+                pressedChar = true;
         }
 
         if (IsKeyDown(KeyboardKey.Space) && lastHeldKey == KeyboardKey.Space)
@@ -112,6 +116,7 @@ public partial class Program
             if (ShouldRepeatKey())
             {
                 HandleSpace();
+                pressedChar = true;
             }
         }
 
@@ -120,23 +125,17 @@ public partial class Program
         {
             editor.Text = editor.Text.Insert(cursorPosition, "    ");
             cursorPosition += 4;
+                pressedChar = true;
         }
     }
 
     private static void HandleDelete()
     {
-        //if (cursorPosition < editor.CurrentInput.Length)
-        //{
-        //    // Verwijder character na cursor
-        //    editor.CurrentInput = editor.CurrentInput.Remove(cursorPosition, 1);
-        //}
-        //else if (editor.CurrentLine < editor.Lines.Count - 1)
-        //{
-        //    // Delete aan einde van regel - voeg volgende regel samen met huidige
-        //    string nextLine = editor.Lines[editor.CurrentLine + 1];
-        //    editor.CurrentInput += nextLine;
-        //    editor.Lines.RemoveAt(editor.CurrentLine + 1);
-        //}
+
+        if (cursorPosition < editor.Text.Length)
+								{ 
+									editor.Text = editor.Text.Remove(cursorPosition, 1);
+								}
     }
 
     static bool pressedChar;
@@ -149,7 +148,6 @@ public partial class Program
         if (key > 0)
         {
             pressedChar = true;
-            MusicManager.PlayTypeSound();
 
             string charString = ((char)key).ToString();
             lastCharString = charString;

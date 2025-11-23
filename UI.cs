@@ -104,23 +104,23 @@ public partial class Program
             Vector2 mousePos = Raylib.GetMousePosition();
             if (Raylib.IsMouseButtonDown(MouseButton.Left) && Raylib.CheckCollisionPointRec(mousePos, ActualBounds))
             {
-                    // CHANGE: Use X coordinate instead of Y for horizontal movement
-                    float relativeX = mousePos.X - ActualBounds.X;
-                    Volume = Math.Clamp(relativeX / ActualBounds.Width, 0f, 1f);
-                    Raylib.SetMasterVolume(Volume);
+                // CHANGE: Use X coordinate instead of Y for horizontal movement
+                float relativeX = mousePos.X - ActualBounds.X;
+                Volume = Math.Clamp(relativeX / ActualBounds.Width, 0f, 1f);
+                Raylib.SetMasterVolume(Volume);
 
-                    // Update muziek volume als het geladen is
-                    if (MusicManager.isLoaded)
-                    {
-                        Raylib.SetMusicVolume(MusicManager.BackgroundMusic, Volume);
-                    }
+                // Update muziek volume als het geladen is
+                if (MusicManager.isLoaded)
+                {
+                    Raylib.SetMusicVolume(MusicManager.BackgroundMusic, Volume);
                 }
             }
+        }
 
         public void Draw()
         {
             Raylib.DrawRectangleRec(VisualBounds, new Color(50, 50, 70, 255));
-            Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y, 
+            Raylib.DrawRectangleLines((int)VisualBounds.X, (int)VisualBounds.Y,
                     (int)VisualBounds.Width, (int)VisualBounds.Height, new Color(100, 100, 120, 255));
 
             // CHANGE: Fill from left to right instead of bottom to top
@@ -135,7 +135,7 @@ public partial class Program
             Raylib.DrawRectangle((int)markerX - 2, (int)VisualBounds.Y - 5, 4, (int)VisualBounds.Height + 10, Color.White);
 
             Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
-            Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15, 
+            Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15,
                     (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
         }
     }
