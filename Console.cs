@@ -3,9 +3,6 @@ using System.Runtime.InteropServices;
 namespace Odootoor;
 
 using System.Diagnostics;
-using System.Numerics;
-
-using Raylib_cs;
 
 
 // Simple code interpreter
@@ -46,7 +43,7 @@ public partial class Program
                     {
                         while (!proc.StandardOutput.EndOfStream)
                         {
-                            string line = proc.StandardOutput.ReadLine();
+                            string? line = proc.StandardOutput.ReadLine();
                             lock (OutputBuffer)
                             {
                                 OutputBuffer.Add(line);
