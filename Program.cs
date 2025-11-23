@@ -140,7 +140,7 @@ public partial class Program
                     else if (StickmanOver(stickmanPos, executeButton.Bounds))
                     {
 			            outputWindow.IsVisible = !outputWindow.IsVisible;
-                        outputWindow.piper.Run("print(3)");
+                        outputWindow.piper.Run(ToBuffer(editor.Lines));
                         outputWindow.OutputText = "";
                         outputWindow.Draw();
                     }
