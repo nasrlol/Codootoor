@@ -454,8 +454,8 @@ public partial class Program
         new[] { "I accept!", "Cancel" },
         new[] { "Continue", "Go Back" },
         new[] { "Proceed", "Abort" },
-        new[] { "Yes", "No" },
-        new[] { "No", "Yes" } // ← Knoppen verwisseld op level 6
+        new[] { "Sure", "No" },
+        new[] { "Yes", "No" } // ← Knoppen verwisseld op level 6
     };
 
     string[] confusingQuestions = {
