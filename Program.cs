@@ -86,7 +86,7 @@ public partial class Program
         {
             pressedChar = false;
             bool stickmanMoved = false;
-            Frames stickmanFrames = null;
+            Frames? stickmanFrames = null;
             float runSpeed = 12f;
 
             if (IsWindowResized())
