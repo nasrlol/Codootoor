@@ -131,7 +131,7 @@ class VolumeSlider
         float markerY = VisualBounds.Y + VisualBounds.Height - fillHeight;
         Raylib.DrawRectangle((int)VisualBounds.X - 5, (int)markerY - 2, (int)VisualBounds.Width + 10, 4, Color.White);
 
-        Raylib.DrawText("VOLUME", (int)VisualBounds.X, (int)VisualBounds.Y - 30, 20, Color.White);
+        Raylib.DrawText("VOLUME", (int)VisualBounds.X - 25, (int)VisualBounds.Y - 30, 20, Color.White);
         Raylib.DrawText($"{(int)(Volume * 100)}%", (int)VisualBounds.X + (int)VisualBounds.Width + 15,
                 (int)VisualBounds.Y + (int)VisualBounds.Height / 2 - 10, 20, Color.White);
     }
@@ -606,20 +606,20 @@ public partial class Program
     static Rectangle CalculateVolumeSlider()
     {
         return new Rectangle(
-                screenWidth * 0.75f,
+                screenWidth * 0.75f + 70,
                 screenHeight * 0.57f,
-                200,
-                20
+                30,
+                200
                 );
     }
 
     static Rectangle CalculateVolumeSliderActual()
     {
         return new Rectangle(
-                screenWidth * 0.75f,
+                screenWidth * 0.75f + 70,
                 screenHeight * 0.56f,
-                200,
-                30
+                30,
+                200
                 );
     }
 
