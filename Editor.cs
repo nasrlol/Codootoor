@@ -142,7 +142,6 @@ public partial class Program
         //}
     }
 
-
     static bool pressedChar;
 
     private static void ProcessCharacterInput()
