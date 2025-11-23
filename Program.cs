@@ -546,7 +546,6 @@ partial class Program
                             }
                         }
 
-			dPos *= turboMode;
                         float leftStickX = GetGamepadAxisMovement(0, GamepadAxis.LeftX);
                         float leftStickY = GetGamepadAxisMovement(0, GamepadAxis.LeftY);
                         if (MathF.Abs(leftStickX) > 0.2f)
@@ -563,6 +562,7 @@ partial class Program
                         {
 				turboMode = 4;
                         }
+			dPos *= turboMode;
 
                     }
                 }
