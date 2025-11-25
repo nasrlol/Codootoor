@@ -8,7 +8,7 @@ cd "$ScriptDirectory"
 #- Globals
 CommonCompilerFlags="-DOS_LINUX=1 -fsanitize-trap -nostdinc++"
 CommonWarningFlags="-Wall -Wextra -Wconversion -Wdouble-promotion -Wno-sign-conversion -Wno-sign-compare -Wno-double-promotion -Wno-unused-but-set-variable -Wno-unused-variable -Wno-write-strings -Wno-pointer-arith -Wno-unused-parameter -Wno-unused-function -Wno-format"
-LinkerFlags="-lm"
+LinkerFlags="-lm -ldl -lpthread -lX11 -lxcb -lGL -lGLX -lglfw -lXext -lGLdispatch -lXau -lXdmcp"
 
 DebugFlags="-g -ggdb -g3"
 ReleaseFlags="-O3"
@@ -43,11 +43,32 @@ Flags="$Flags $CommonWarningFlags"
 [ "$gcc"   = 1 ] && Flags="$Flags $GCCFlags"
 Flags="$Flags $LinkerFlags"
 
-[ "$debug"   = 1 ] && printf '[debug mode]\n'
-[ "$release" = 1 ] && printf '[release mode]\n'
+[ "$debug"   = 1 ] && Mode="debug"
+[ "$release" = 1 ] && Mode="release"
+printf '[%s mode]\n' "$Mode"
 printf '[%s compile]\n' "$Compiler"
 
-Build="../../build"
+Build="../build"
 mkdir -p "$Build"
+cd "$Build"
 
-$Compiler $Flags -o "$Build"/codootoor codootoor.cpp
+Temp="temp_$Mode"
+
+RaylibFiles="raudio rcore rmodels rshapes rtext rtextures utils"
+RaylibSourceFiles=
+for File in $RaylibFiles; do RaylibSourceFiles="$RaylibSourceFiles ../../code/raylib/${File}.c "; done
+ObjFiles=
+for File in $RaylibFiles; do ObjFiles="$ObjFiles $Temp/${File}.o "; done
+
+# Based on raylib/projects/scripts/build-linux.sh
+if ! [ -d "$Temp" ]
+then
+	printf 'Building raylib.\n'
+	mkdir -p "$Temp"
+	cd "$Temp"
+	$Compiler $Flags -w -c -D_DEFAULT_SOURCE -DPLATFORM_DESKTOP -DGRAPHICS_API_OPENGL_33 $RaylibSourceFiles
+	cd ..
+fi
+
+printf 'codootoor.cpp\n'
+$Compiler -I./raylib $Flags -o codootoor.elf $ObjFiles ../code/codootoor.cpp $LinkerFlags
