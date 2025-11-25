@@ -24,7 +24,7 @@ set "RAYLIB_SRC=!ROOT_DIR!\!RAYLIB_SRC!"
 
 REM Flags
 set OUTPUT_FLAG=/Fe: "!GAME_NAME!"
-set COMPILATION_FLAGS=/std:c11 /Od /Zi /utf-8 /validate-charset /EHsc
+set COMPILATION_FLAGS=/std:c11 /Od /Zi /utf-8 /validate-charset /EHsc /DOS_WINDOWS=1
 set WARNING_FLAGS=/W3 /sdl
 set SUBSYSTEM_FLAGS=/DEBUG
 set LINK_FLAGS=/link kernel32.lib user32.lib shell32.lib winmm.lib gdi32.lib opengl32.lib

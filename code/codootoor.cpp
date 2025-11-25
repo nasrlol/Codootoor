@@ -1,6 +1,10 @@
 #include "raylib.h"
 
-#define RADDBG_MARKUP_IMPLEMENTATION
+#ifdef OS_WINDOWS
+# define RADDBG_MARKUP_IMPLEMENTATION
+#else
+# define RADDBG_MARKUP_STUBS
+#endif
 #include "raddbg_markup.h"
 
 int main(void)
