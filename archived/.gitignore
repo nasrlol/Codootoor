@@ -1,0 +1,10 @@
+bin
+obj
+.vs/
+tags
+obj/
+.idea/
+saves/
+.editorconfig
+.vscode
+odootoor.sln
