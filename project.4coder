@@ -1,0 +1,57 @@
+version(2);
+project_name = "Codootoor";
+patterns = {
+    "*.c",
+    "*.mdesk",
+    "*.cpp",
+    "*.h",
+    "*.m",
+    "*.bat",
+    "*.sh",
+    "*.4coder",
+};
+blacklist_patterns = {
+    "_old.*",
+};
+
+paths =
+{
+    { .path = ".",     .recursive = false, .relative = true, },
+    { .path = "code",   .recursive = true , .relative = true, },
+};
+
+load_paths = {
+    .win = paths,
+    .linux = paths,
+    .mac = paths,
+};
+
+
+commands = 
+{
+    .build = 
+    {
+        .out = "*compilation*", .save_dirty_files = true,
+        .linux = "./code/build.sh",
+        .win = ".\code\build.bat -d",
+    },
+    .release = 
+    {
+        .out = "*compilation*", .save_dirty_files = true,
+        .linux = "./code/build.sh release",
+        .win = ".\code\build.bat",
+    },
+    .debug = 
+    { 
+        .win = "raddbg.exe --project codootoor.raddbg_project",
+        .linux = "gf2 ./build/codootoor",
+    },
+};
+
+
+fkey_command = 
+{
+    .F1 = "build",
+    .F2 = "release",
+    .F3 = "debug",
+};

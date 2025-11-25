@@ -1,0 +1,31 @@
+// raddbg 0.9.24 project file
+
+recent_file: path: "code/codootoor.cpp"
+recent_file: path: "code/core_basic_window.c"
+target:
+{
+  executable: "build/codootoor.exe"
+  working_directory: build
+  enabled: 1
+}
+debug_info:
+{
+  path: "C:/Users/zebra/Projects/Codootoor/build/codootoor.exe"
+  timestamp: 66199298085859
+}
+debug_info:
+{
+  path: "C:/Users/zebra/Projects/Codootoor/build/codootoor.pdb"
+  timestamp: 66199301406692
+}
+breakpoint:
+{
+  source_location: "code/core_basic_window.c:23:1"
+  hit_count: 0
+}
+debug_info: path: "C:/Users/zebra/Projects/Codootoor/build/codootoor.pdb"
+debug_info:
+{
+  path: "C:/Users/zebra/Projects/Codootoor/build/raudio.pdb"
+  timestamp: 66199301068231
+}
